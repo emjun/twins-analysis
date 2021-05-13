@@ -1,0 +1,81 @@
+---
+title: "566project_data"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#denom<-read.csv("~/Desktop/PhD/2021 Spring/STAT 566/project/data/linkco2013us_den.csv")
+#pick variables in the denominator data
+colnames(denom)
+table(denom$dplural)
+denom<-denom%>%filter(dplural!=1)
+
+need_den <- c("idnumber", "dob_yy", "dob_mm", "dob_wk", "mager41", "mager14", "mager9", "meduc", "mracerec", "fracerec", "fagerec11", "lbo", "uprevis", "wtgain", "cig_1", "cig_2", "cig_3","mar", "rf_diab", "rf_gest", "rf_phyp", "rf_ghyp", "rf_eclam", "rf_ppterm", "rf_ppoutc", "rf_cesar", "rf_ncesar", "md_route", "dmeth_rec", "apgar5", "sex", "dbwt", "ab_vent", "ab_vent6", "ab_nicu", "ab_surfac", "ab_antibio", "ca_anen", "ca_menin", "ca_heart", "ca_hernia", "ca_ompha", "ca_gastro", "ca_limb", "ca_cleftlp", "ca_cleft", "ca_downs", "ca_chrom", "ca_hypos", "aged", "manner", "precare", "dplural", "restatus", "tbo")
+
+table(need_den %in% colnames(denom))
+
+#check if any of those variables have a lot of missings
+for (i in 1:length(need_den)) {
+  print(need_den[i])
+  print(table(is.na(denom[,need_den[i]])))
+}
+
+```
+
+```{r}
+#pick variables in the numerator data
+#num<-read.csv("~/Desktop/PhD/2021 Spring/STAT 566/project/data/linkco2013us_num.csv")
+colnames(num)
+num<-num%>%filter(dplural!=1)
+need_num <- c("idnumber", "dob_yy", "dob_mm", "dob_wk", "mager41", "mager14", "mager9", "fagerec11", "aged", "manner", "ucod130")
+
+table(need_num %in% colnames(num))
+
+#check if any of the variables have a lot of missings
+for (i in 1:length(need_num)) {
+  print(need_num[i])
+  print(table(is.na(num[,need_num[i]])))
+}
+
+```
+
+
+```{r}
+#subset the data
+den_need<- denom[ ,need_den]
+num_need<-num[ ,need_num]
+```
+
+```{r}
+#join the denominator and numerator data
+total_need_pa<-den_need%>%left_join(num_need, by=c("idnumber", "dob_yy", "dob_mm", "dob_wk", "mager41", "mager14", "mager9", "fagerec11", "aged", "manner"))
+
+#check if the join looks promising
+table(is.na(total_need_pa$ucod130))
+```
+
+```{r}
+#filter the observations who don't have smoking info
+total_need<-total_need_pa%>%filter(cig_1!="NA")
+
+for (i in 1:length(colnames(total_need))) {
+  print(colnames(total_need)[i])
+  print(table(is.na(total_need[,colnames(total_need)[i]])))
+}
+
+#creat a indicator of mortality
+total_need<-total_need%>%
+  mutate(death=ifelse(is.na(idnumber),0,1))
+
+table(total_need$death)
+
+#write the file
+#write.csv(total_need, "~/Desktop/twins2013.csv")
+```
+
