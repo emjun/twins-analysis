@@ -5,6 +5,8 @@ editor_options:
   chunk_output_type: console
 ---
 
+Match the observations to twins according to mother's demographics and birth date 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```

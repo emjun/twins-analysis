@@ -5,6 +5,8 @@ editor_options:
   chunk_output_type: console
 ---
 
+Clean and wrangle the data.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
