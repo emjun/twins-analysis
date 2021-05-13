@@ -11,11 +11,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
-#twins2013<-read.csv("~/Desktop/PhD/2021 Spring/STAT 566/project/data/twins2013.csv")
+# Load data
+twins2013<-read.csv("./data/twins2013.csv")
 ```
 
 ```{r}
 #procedure proposal
+# Question: What does "procedure proposal" mean?
 colnames(twins2013)
 #combine variables dob_mm, dob_wk, mager41, uprevis, wtgain, cig_1, cig_2, cig_3
   #Note that this could be one limitation in our study since we can't say for sure 100% that we are absolutely right about 
@@ -26,6 +28,7 @@ twins2013_1<-twins2013%>%mutate(identifier=paste(mager41, restatus, meduc, mrace
 table(is.na(twins2013_1$identifier))
 
 #see how many unique combinations are there and see if it is approx. half of the obs
+# Question: Do we assume that matching on the above identifiers would lead to approx half of the obs because matching would lead to twins (2 entries/rows)?
 length(unique(twins2013_1$identifier)) 
 
 #give the same pairs a unique twin number just to make it computationally easier for later steps
@@ -44,7 +47,9 @@ twins_2013_3<-twins_2013_2%>%left_join(numintwin, by="number")
 table(twins_2013_3$n_children)
 twins_2013_nosing<-twins_2013_3%>%filter(n_children!=1)
 #unmatched percent
+# Question: Where does each number come from?
 12992/123723
+# Question: Where does each number come from?
 110731/123723
 
 #give birth order and remove those who can't determine
@@ -76,29 +81,14 @@ twins_2013_twin_ord<-twins_2013_twins%>%filter(!(number%in%falsenum))
 
 #110731 no singletons
 nrow(twins_2013_quad_ord)+nrow(twins_2013_quin_ord)+nrow(twins_2013_trip_ord)+nrow(twins_2013_twin_ord)
+# Question: Where does each number come from?
 87363/110731
+# Question: Where does each number come from? Why is the denominator different from the above line of code?
 87363/123723
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# What is the below chunk of code? It looks like an older/newer version. Can you integrate with thee above code somehow so we have only one version of the code? Don't want to accidentally edit/update the wrong version!
 ```{r}
 library(tidyverse)
 #twins2011<-read.csv("~/Desktop/twins2011.csv")
