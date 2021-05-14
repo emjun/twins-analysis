@@ -1,0 +1,18 @@
+---
+title: "EDA"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+Exploratory data analysis
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Load data
+```{r}
+library(tidyverse)
+# Load data
+twins2013<-read.csv("./data/twins2013.csv")
+```

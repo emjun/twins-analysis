@@ -14,3 +14,6 @@ Causal analysis of twin health outcomes
 `data_wrangling.Rmd`: Clean and wrangle data
 `matching_pairs.Rmd`: Match twins from the individual observations/rows
 `eda.Rmd`: Exploratory data analysis
+
+
+# Subsetting the original dataset
