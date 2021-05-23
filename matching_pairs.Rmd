@@ -19,7 +19,8 @@ twins2013<-read.csv("./data/twins2013.csv")
 
 ```{r}
 #procedure proposal
-# Question: What does "procedure proposal" mean?
+# Question: What does "procedure proposal" mean? -Lol you could ignore this. Was a note for myself since I wrote the procedure first and then wrote the code the next day.
+
 colnames(twins2013)
 #combine variables dob_mm, dob_wk, mager41, uprevis, wtgain, cig_1, cig_2, cig_3
   #Note that this could be one limitation in our study since we can't say for sure 100% that we are absolutely right about 
@@ -30,7 +31,7 @@ twins2013_1<-twins2013%>%mutate(identifier=paste(mager41, restatus, meduc, mrace
 table(is.na(twins2013_1$identifier))
 
 #see how many unique combinations are there and see if it is approx. half of the obs
-# Question: Do we assume that matching on the above identifiers would lead to approx half of the obs because matching would lead to twins (2 entries/rows)?
+# Question: Do we assume that matching on the above identifiers would lead to approx half of the obs because matching would lead to twins (2 entries/rows)? -no we kept the original structure that one row is one kid. The pair could be identified by `number`. 
 length(unique(twins2013_1$identifier)) 
 
 #give the same pairs a unique twin number just to make it computationally easier for later steps
@@ -49,9 +50,9 @@ twins_2013_3<-twins_2013_2%>%left_join(numintwin, by="number")
 table(twins_2013_3$n_children)
 twins_2013_nosing<-twins_2013_3%>%filter(n_children!=1)
 #unmatched percent
-# Question: Where does each number come from?
+# Question: Where does each number come from? This should be from the table above in line 49
 12992/123723
-# Question: Where does each number come from?
+# Question: Where does each number come from? This is just 1 minus the fraction above. I was too lazy doing the calculation myself lol
 110731/123723
 
 #give birth order and remove those who can't determine
@@ -83,14 +84,14 @@ twins_2013_twin_ord<-twins_2013_twins%>%filter(!(number%in%falsenum))
 
 #110731 no singletons
 nrow(twins_2013_quad_ord)+nrow(twins_2013_quin_ord)+nrow(twins_2013_trip_ord)+nrow(twins_2013_twin_ord)
-# Question: Where does each number come from?
+# Question: Where does each number come from? This should from the calculation above indicate the proportion of pairs that has order information out of matched pais.
 87363/110731
-# Question: Where does each number come from? Why is the denominator different from the above line of code?
+# Question: Where does each number come from? Why is the denominator different from the above line of code? I was comparing the proportion of matched pairs of the number of twins, triplets that the dplural variable in the data tells us while the above is of the number of pairs that we matched
 87363/123723
 
 ```
 
-# What is the below chunk of code? It looks like an older/newer version. Can you integrate with thee above code somehow so we have only one version of the code? Don't want to accidentally edit/update the wrong version!
+# What is the below chunk of code? It looks like an older/newer version. Can you integrate with thee above code somehow so we have only one version of the code? Don't want to accidentally edit/update the wrong version! - I believe this is just a old version when I was trying to see whether a different year of data gives us similar matched proportions. The below is 2011.
 ```{r}
 library(tidyverse)
 #twins2011<-read.csv("~/Desktop/twins2011.csv")
@@ -126,10 +127,10 @@ table(numintwin1$n_children)
 check<-twins_2011_2%>%filter(number%in%numintwin1[numintwin1$n_children==1,1]$number)
 check$identifier
 #use gather/spread to combine the mortality and birth_order and birth weight info
+
+
+
+
+
 ```
 
-Output the matched CSV
-```{r}
-# Question: Is this the right one to output and analyze?
-write.csv(twins_2013_2, './data/twins2013_matched.csv')
-```
