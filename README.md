@@ -15,7 +15,6 @@ Causal analysis of twin health outcomes
 `matching_pairs.Rmd`: Match twins from the individual observations/rows
 `eda.Rmd`: Exploratory data analysis
 
-
 # Subsetting the original dataset
 - the orininal denominator and numerator are downloaded from the ncbi website.
 - using the DPLURAL variable (with levels singleton, twin, triplets, etc.) to subset it only to data without singletons
@@ -26,3 +25,8 @@ Causal analysis of twin health outcomes
 # Subsetting the matched data to data with birth order info
 - I only subset it by looking at the number of unique birth orders match with the number of babies in that birth (e.g. for triplets, they should have 3 distinct birth orders)
 - This is not perfect as explained in our meeting. Can work more on it later. 
+
+
+# Presentations
+Initial project overview: https://docs.google.com/presentation/d/1mMjyNRkq14cksO3MPji0mi4Vsnqf55Rp1gwpX0l6-7M/edit?usp=sharing
+Final presentation: TBD
