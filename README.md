@@ -12,8 +12,12 @@ Causal analysis of twin health outcomes
 
 # Files
 `data_wrangling.Rmd`: Clean and wrangle data
-`matching_pairs.Rmd`: Match twins from the individual observations/rows
+`matching_pairs.Rmd`: Match twins from the individual observations/rows and output matched dataset to `twins2013_matched_children.csv`
 `eda.Rmd`: Exploratory data analysis
+
+# How to run the files
+Run `matching_pairs.Rmd` to ouput a CSV with matched children. 
+Run `eda.Rmd` which takes as input the matched CSV (output from `matching_pairs.Rmd`) and visualizes the data. 
 
 # Subsetting the original dataset
 - the orininal denominator and numerator are downloaded from the ncbi website.

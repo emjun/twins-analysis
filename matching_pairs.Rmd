@@ -48,8 +48,12 @@ numintwin<-twins_2013_2%>%group_by(number)%>%summarize(n_children=n())
 check<-twins_2013_2%>%filter(number%in%numintwin[numintwin$n_children==6 ,1]$number)
 twins_2013_3<-twins_2013_2%>%left_join(numintwin, by="number")
 table(twins_2013_3$n_children)
-twins_2013_nosing<-twins_2013_3%>%filter(n_children!=1)
-#write.csv(twins_2013_nosing, "~/Desktop/PhD/2021 Spring/STAT 566/project/data/twins_2013_matched.csv")
+twins_2013_nosing<-twins_2013_3%>%filter(n_children!=1) # no singletons
+write.csv(twins_2013_nosing, "./data/twins2013_matched_children.csv")
+
+
+
+
 #unmatched percent
 # Question: Where does each number come from? This should be from the table above in line 49
 12992/123723

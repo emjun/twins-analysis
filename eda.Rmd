@@ -7,12 +7,105 @@ editor_options:
 
 Exploratory data analysis
 
+Install and load dependencies
+```{r}
+list.of.packages <- c("knitr", "tidyverse", "ggplot2", "Rcpp")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 Load data
 ```{r}
 library(tidyverse)
 # Load data
-twins2013<-read.csv("./data/twins2013.csv")
+matched_children_df<-read.csv("./data/twins2013_matched_children.csv")
+```
+
+
+```{r}
+children_groups = unique(matched_children_df['number'])
+
+doubled_df <- bind_rows(children_groups, children_groups)
+
+```
+
+Clean data to only look at twins
+```{r}
+# Separate out twins
+print('Original  dataset had rows:' + nrow(matched_children_df))
+twins_only <- filter(matched_children_df, n_children == 2)
+print('Only twins:' + nrow(twins_only))
+```
+
+Visualize mothers data for twins
+```{r}
+mothers_only <- data.frame() # Create a new dataframe for mothers data only
+unique_twins_pairs = unique(twins_only['number'])
+
+for(t in 1:length(twins_only$number)) {
+  # While iterating through each twin, if there are discrepancies between mothers data, random choose which row of data to use
+  
+  # If no discrepancy, add first one to mothers_only df
+  
+  
+}
+
+# GOAL: mothers only should have data for all unique mothers in the dataset, easy for us to create bar charts giving an overview of the mothers health
+```
+
+Reformat twins only data
+RQ1: Difference in birth weight of twin pairs? - Create a dataframe for each twin pair showing their mother's info + difference in birth weight
+
+RQ2: Mortality rate? - Create  a df for each twin pair showing their mother's info + categorical encoding for mortality (looking at Death column)
+
+RQ4: Create a df for each twin pair showing mother's info + categorical encoding for chromosomal abnormalities (both, one) for each chromosomal abnormality
+```{r}
+# Create a new wide dataframe
+twins_only_numbers <- data.frame(number=character(),
+                                 n_children=integer(),
+                                 infant_id_og = character(), 
+                                 birth_order = integer(), # originally called "lbo"
+                                 infant_num = character(), # child number we create
+                                 stringsAsFactors=FALSE) 
+
+# For each unique Number
+# If there are 2 children and lbo is 1 and 2
+# Get unique twin/child group numbers
+children_groups = unique(matched_children_df['number'])
+
+for(i in 1:length(twins_only$number)) {
+  curr_number = children_groups$number[i]
+  
+  children = filter(twins_only,  number == curr_number)
+  
+  if (length(children$n_children) == 2) {
+    twins_only <- bind_rows(twins_only, children, .id=NULL)
+  }
+  
+  if (length(children$n_children) > 2) {
+    other <- bind_rows(other, children, .id=NULL)
+  }
+    
+}
+
+head(twins_only)
+# Add each value 
+```
+
+
+
+Count and visualize number of twins vs. triplets vs. ...
+```{r}
+
+```
+
+Visualize specific data columns of interest
+Most twins in the dataset live (death == 0)
+```{r}
+ggplot(twins2013, aes(death)) +
+  geom_histogram()
 ```
