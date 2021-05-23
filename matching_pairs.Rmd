@@ -126,10 +126,10 @@ table(numintwin1$n_children)
 check<-twins_2011_2%>%filter(number%in%numintwin1[numintwin1$n_children==1,1]$number)
 check$identifier
 #use gather/spread to combine the mortality and birth_order and birth weight info
-
-
-
-
-
 ```
 
+Output the matched CSV
+```{r}
+# Question: Is this the right one to output and analyze?
+write.csv(twins_2013_2, './data/twins2013_matched.csv')
+```
