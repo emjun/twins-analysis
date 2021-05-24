@@ -1,0 +1,86 @@
+---
+title: "birth order"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+twins2013_matched <- read.csv("~/Desktop/PhD/2021 Spring/STAT 566/project/data/twins_2013_matched.csv")
+twins2013_matched <- twins2013_matched%>%select(-X, -X1)
+```
+
+# Determine Birth Order
+```{r}
+#create subsets for twins, triplets, quadruplets, quintuplets
+table(twins2013_matched$n_children)
+twins_2013_twins<-twins2013_matched%>%filter(n_children==2)
+twins_2013_trip<-twins2013_matched%>%filter(n_children==3)
+twins_2013_quad<-twins2013_matched%>%filter(n_children==4)
+twins_2013_quin<-twins2013_matched%>%filter(n_children==5)
+# Note: a part of them are not orderable because of how they coded the variable that 8 indicates 8 or more kids
+
+#look at quintuplets 
+twins_2013_quin%>%select(number, lbo, tbo, death) #tbo doesn't make perfect sense to me
+twins_2013_quin%>%group_by(number)%>%summarise(orderable1=length(unique(lbo))==5,
+                                               orderable2=(max(lbo)-min(lbo)==4),
+                                               orderable=orderable1&orderable2) #the only problematic one is 22197
+twins_2013_quin_ord<-twins_2013_quin%>%filter(number!=22197)
+
+#look at quadrauplets
+twins_2013_quad%>%select(number, lbo, tbo, death) #tbo doesn't make perfect sense to me
+orderable_quad<-twins_2013_quad%>%group_by(number)%>%summarise(orderable1=length(unique(lbo))==4,
+                                               orderable2=(max(lbo)-min(lbo)==3),
+                                               orderable=orderable1&orderable2)
+table(orderable_quad$orderable)
+orderable_num<-orderable_quad$number[orderable_quad$orderable]
+twins_2013_quad%>%filter(!(number%in%orderable_num))%>%select(number, lbo, tbo, death)
+twins_2013_quad_ord<-twins_2013_quad%>%filter(number%in%orderable_num)
+length(unique(twins_2013_quad_ord$number))==length(orderable_num)
+
+#look at triplets
+twins_2013_trip%>%select(number, lbo, tbo, death)
+orderable_trip<-twins_2013_trip%>%group_by(number)%>%summarise(orderable1=length(unique(lbo))==3,
+                                               orderable2=(max(lbo)-min(lbo)==2),
+                                               orderable=orderable1&orderable2)
+table(orderable_trip$orderable)
+orderable_num<-orderable_trip$number[orderable_trip$orderable]
+twins_2013_trip%>%filter(!(number%in%orderable_num))%>%select(number, lbo, tbo, death)
+twins_2013_trip_ord<-twins_2013_trip%>%filter(number%in%orderable_num)
+length(unique(twins_2013_trip_ord$number))==length(orderable_num)
+
+
+#look at twins
+twins_2013_twins%>%select(number, lbo, tbo, death)
+orderable_twin<-twins_2013_twins%>%group_by(number)%>%summarise(orderable1=length(unique(lbo))==2,
+                                               orderable2=(max(lbo)-min(lbo)==1),
+                                               orderable=orderable1&orderable2)
+table(orderable_twin$orderable)
+orderable_num<-orderable_twin$number[orderable_twin$orderable]
+twins_2013_twins%>%filter(!(number%in%orderable_num))%>%select(number, lbo, tbo, death)
+twins_2013_twin_ord<-twins_2013_twins%>%filter(number%in%orderable_num)
+length(unique(twins_2013_twin_ord$number))==length(orderable_num)
+
+#combine all orderable data
+twins_2013_ord<-rbind(twins_2013_quin_ord, twins_2013_quad_ord, twins_2013_trip_ord, twins_2013_twin_ord)
+nrow(twins_2013_quad_ord)+nrow(twins_2013_quin_ord)+nrow(twins_2013_trip_ord)+nrow(twins_2013_twin_ord)==nrow(twins_2013_ord)
+
+#percent of orderable data out of matched data
+nrow(twins_2013_ord)/nrow(twins2013_matched)
+
+#add orderable variable in twins2013_matched
+allord_num<-unique(twins_2013_ord$number)
+twins2013_matched<-twins2013_matched%>%mutate(orderable=ifelse(number%in%allord_num,1,0))
+table(twins2013_matched$orderable)
+```
+
+# if missing birth order info is associated with some covariates
+
+
+
+
+
