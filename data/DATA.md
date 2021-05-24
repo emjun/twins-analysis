@@ -4,7 +4,7 @@ Columns:
 
     - X1: could ignore this - just the row number
     
-    - idnumber: the id number used to match the mortality dataset to the denominator dataset with all other birth information. We have 3177 non-missing values                     which means there are 3177 deaths out of 123723 kids in our dataset. All live births are NA in this column.
+    - idnumber: the id number used to match the mortality dataset to the denominator dataset with all other birth information. We have 2397 non-missing values                     which means there are 2397 deaths out of 110731 kids in our dataset. All live births are NA in this column.
     
     - dob_yy: birth year - all are 2013
     
@@ -106,9 +106,9 @@ Columns:
     
     - ca_hypos: Hypospadias - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
     
-    - aged: age at death in days, only has 3177 non-missing values - 000-365: number of days
+    - aged: age at death in days, only has 2397 non-missing values - 000-365: number of days
     
-    - manner: manner of death, 2598 non-missing values - 1: Accident; 2 - Suicide; 3: Homicide; 4: Pending investigation; 5: Could not determine; 6: Self-                                                                  inflicted; 7: Natural; NA: Not specified if death = 1, infants alive otherwise
+    - manner: manner of death, 1937 non-missing values - 1: Accident; 2 - Suicide; 3: Homicide; 4: Pending investigation; 5: Could not determine; 6: Self-                                                                  inflicted; 7: Natural; NA: Not specified if death = 1, infants alive otherwise
     
     - precare: month prenatal care began - 00: No prenatal care; 01-10: Month prenatal care began; 99: Unknown or not stated
     
@@ -118,7 +118,7 @@ Columns:
     
     - tbo: total birth order - 1-7 Number of total birth order; 8: 8 or more total births; 9: Unknown or not stated
     
-    - ucod130: 130 infant cause recode for underlying cause of death, code level descriptions see                                                                                  https://wonder.cdc.gov/wonder/sci_data/natal/linked/type_txt/cohort99/130Cause99.pdf
+    - ucod130: 130 infant cause recode for underlying cause of death, only 2397 non-missing values, code level descriptions see                                                    https://wonder.cdc.gov/wonder/sci_data/natal/linked/type_txt/cohort99/130Cause99.pdf
     
     - death: indicator of infant deaths - 0: alive; 1: died
     
