@@ -54,6 +54,9 @@ write.csv(twins_2013_nosing, "./data/twins2013_matched_children.csv")
 
 
 
+
+DISCARD CODE BELOW - see birth order.Rmd for birth order analysis
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #unmatched percent
 # Question: Where does each number come from? This should be from the table above in line 49
 12992/123723
