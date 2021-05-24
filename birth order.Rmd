@@ -92,7 +92,7 @@ length(unique(twins2013_matched$number))
 Some ideas:
   - use the stratified sample to see if some general characteristic is associated with missing
   - if having a death is associated with missing
-  - how to deal with lbo=8? 
+  - how to deal with lbo=8?  
   
 
 
