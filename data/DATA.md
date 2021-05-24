@@ -2,8 +2,11 @@
 File: `twins2013_matched.csv`
 Columns:
     - X1: could ignore this - just the row number
+    
     - idnumber: the id number used to match the mortality dataset to the denominator dataset with all other birth information. We have 3177 non-missing values which                 means there are 3177 deaths out of 123723 kids in our dataset. All live births are NA in this column.
+    
     - dob_yy: birth year - all are 2013
+    
     - dob_mm: birth month - values 1 to 12
     - dob_wk: birth weekday - values 1 to 7
     - mager41: mother's age - values 13 to 50 with 13-49 indicating 13-49 years old, 50 indicating 50-64 years old
