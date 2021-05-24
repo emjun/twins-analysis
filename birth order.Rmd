@@ -80,7 +80,20 @@ table(twins2013_matched$orderable)
 
 # if missing birth order info is associated with some covariates
 
+```{r}
+#pick one out of each pair
+library(splitstackshape)
+stratified_sample<-stratified(twins2013_matched, "number", 1)
+nrow(stratified_sample)
+length(unique(twins2013_matched$number))
 
+```
+
+Some ideas:
+  - use the stratified sample to see if some general characteristic is associated with missing
+  - if having a death is associated with missing
+  - how to deal with lbo=8? 
+  
 
 
 

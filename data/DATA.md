@@ -4,7 +4,7 @@ Columns:
 
     - X1: could ignore this - just the row number
     
-    - idnumber: the id number used to match the mortality dataset to the denominator dataset with all other birth information. We have 2397 non-missing values                     which means there are 2397 deaths out of 110731 kids in our dataset. All live births are NA in this column.
+    - idnumber: the id number used to match the mortality dataset to the denominator dataset with all other birth information. We have 2397 non-missing values which means there are 2397 deaths out of 110731 kids in our dataset. All live births are NA in this column.
     
     - dob_yy: birth year - all are 2013
     
@@ -14,17 +14,17 @@ Columns:
     
     - mager41: mother's age - values 13 to 50 with 13-49 indicating 13-49 years old, 50 indicating 50-64 years old
     
-    - mager14: mother's age recoded in 14 levels - 01: Under 15 Years; 03: 15 years; 04: 16 years; 05: 17 years; 06: 18 years; 07: 19 years; 08: 20-24 years; 09:                                                      25-29 years; 10: 30-34 years; 11: 35-39 years; 12: 40-44 years; 13: 45-49 years; 14: 50-64 years
+    - mager14: mother's age recoded in 14 levels - 01: Under 15 Years; 03: 15 years; 04: 16 years; 05: 17 years; 06: 18 years; 07: 19 years; 08: 20-24 years; 09: 25-29 years; 10: 30-34 years; 11: 35-39 years; 12: 40-44 years; 13: 45-49 years; 14: 50-64 years
     
-    - mager9: mother's age recoded in 9 levels - 1: Under 15 years; 2: 15-19 years; 3: 20-24 years; 4: 25-29 years; 5: 30-34 years; 6: 35-39 years; 7: 40-44 years;                                                  8: 45-49 years; 9: 50-64 years
+    - mager9: mother's age recoded in 9 levels - 1: Under 15 years; 2: 15-19 years; 3: 20-24 years; 4: 25-29 years; 5: 30-34 years; 6: 35-39 years; 7: 40-44 years; 8: 45-49 years; 9: 50-64 years
     
-    - meduc: mother's education coded in 9 levels - 1: 8th grade or less; 2: 9th through 12th grade with no diploma; 3: High school graduate or GED completed; 4:                                                       Some college credit, but not a degree; 5: Associate degree (AA,AS); 6: Bachelor’s degree (BA, AB, BS); 7:                                                           Master’s degree (MA, MS, MEng, MEd, MSW, MBA); 8: Doctorate (PhD, EdD) or Professional Degree (MD, DDS, DVM,                                                       LLB, JD); 9: Unknown
+    - meduc: mother's education coded in 9 levels - 1: 8th grade or less; 2: 9th through 12th grade with no diploma; 3: High school graduate or GED completed; 4: Some college credit, but not a degree; 5: Associate degree (AA,AS); 6: Bachelor’s degree (BA, AB, BS); 7: Master’s degree (MA, MS, MEng, MEd, MSW, MBA); 8: Doctorate (PhD, EdD) or Professional Degree (MD, DDS, DVM, LLB, JD); 9: Unknown
     
     - mracerec: mother's race coded in 4 levels: 1: White; 2: Black; 3: American Indian / Alaskan Native; 4: Asian / Pacific Islander
     
     - fracerec: father's race coded in 5 levels: 1: White; 2: Black; 3: American Indian / Alaskan Native; 4: Asian / Pacific Islander; 9: Unknown or not stated
     
-    - fagerec11: father's age recoded in 11 levels: 01: Under 15 years; 02: 15-19 years; 03: 20-24 years; 04: 25-29 years; 05: 30-34 years; 06: 35-39 years; 07:                                                       40-44 years; 08: 45-49 years; 09: 50-54 years; 10: 55-98 years; 11: Not stated
+    - fagerec11: father's age recoded in 11 levels: 01: Under 15 years; 02: 15-19 years; 03: 20-24 years; 04: 25-29 years; 05: 30-34 years; 06: 35-39 years; 07: 40-44 years; 08: 45-49 years; 09: 50-54 years; 10: 55-98 years; 11: Not stated
     
     - lbo: live birth order recode - 1-7 Number of live birth order; 8: 8 or more live births; 9: Unknown or not stated
     
@@ -108,17 +108,17 @@ Columns:
     
     - aged: age at death in days, only has 2397 non-missing values - 000-365: number of days
     
-    - manner: manner of death, 1937 non-missing values - 1: Accident; 2 - Suicide; 3: Homicide; 4: Pending investigation; 5: Could not determine; 6: Self-                                                                  inflicted; 7: Natural; NA: Not specified if death = 1, infants alive otherwise
+    - manner: manner of death, 1937 non-missing values - 1: Accident; 2 - Suicide; 3: Homicide; 4: Pending investigation; 5: Could not determine; 6: Self-inflicted; 7: Natural; NA: Not specified if death = 1, infants alive otherwise
     
     - precare: month prenatal care began - 00: No prenatal care; 01-10: Month prenatal care began; 99: Unknown or not stated
     
     - dplural: plurality - 1: Single; 2: Twin; 3: Triplet; 4: Quadruplet; 5: Quintuplet or higher
     
-    - restatus: residence status - 1: RESIDENT: State and county of occurrence and residence are the same; 2: INTRASTATE NONRESIDENT: State of occurrence and                                          residence are the same but county is different; 3: INTERSTATE NONRESIDENT: State of occurrence and residence are different but                                      both are one of the 50 US states or District of Columbia; 4: FOREIGN RESIDENT: The state of residence is not one of the 50 US                                      states or District of Columbia.
+    - restatus: residence status - 1: RESIDENT: State and county of occurrence and residence are the same; 2: INTRASTATE NONRESIDENT: State of occurrence and residence are the same but county is different; 3: INTERSTATE NONRESIDENT: State of occurrence and residence are different but both are one of the 50 US states or District of Columbia; 4: FOREIGN RESIDENT: The state of residence is not one of the 50 US states or District of Columbia.
     
     - tbo: total birth order - 1-7 Number of total birth order; 8: 8 or more total births; 9: Unknown or not stated
     
-    - ucod130: 130 infant cause recode for underlying cause of death, only 2397 non-missing values, code level descriptions see                                                    https://wonder.cdc.gov/wonder/sci_data/natal/linked/type_txt/cohort99/130Cause99.pdf
+    - ucod130: 130 infant cause recode for underlying cause of death, only 2397 non-missing values, code level descriptions see https://wonder.cdc.gov/wonder/sci_data/natal/linked/type_txt/cohort99/130Cause99.pdf
     
     - death: indicator of infant deaths - 0: alive; 1: died
     
@@ -127,4 +127,6 @@ Columns:
     - number: Child group number
     
     - n_children: Number of children in the groups
+    
+    - orderable: If you run the birth order.Rmd, it will add in a orderable variable which is 1 if the pair has birth order info and 0 otherwise
     
