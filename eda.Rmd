@@ -163,9 +163,73 @@ dev.off()
 
 ```
 
-Reformat twins only data
+What is the sex makeup of twins? 
+```{r}
+# Process data for pair twins
+# Get unique twin pair numbers
+unique_pairs = unique(twins_only['number'])
+number_twin_sex_df = data.frame(number=integer(0), pair_sex=character(0))
+assertthat::are_equal(nrow(unique_pairs), nrow(twins_only)/2.)
 
-Twins sex -- male, male | female, female | male, female
+for (pair in unique_pairs) {
+  twins = twins_only[twins_only$number %in% pair,]
+  assertthat::are_equal(nrow(twins), 2)
+  
+  num_m = 0
+  num_f = 0 
+  unknown = 0
+  
+  # Count the number of Males/Females
+  twins_sex = twins["sex"]
+  print(twins_sex[[1]])
+  for (s in twins_sex[[1]]){
+    if ("F" %in% s) {
+      num_f = num_f + 1
+    }
+    else if ("M" %in% s) {
+      num_m = num_m + 1
+    }
+    else {
+      unknown = unknown + 1
+    }
+  }
+
+  print(num_f)
+  print(num_m)
+  # Log the number of Males/Females
+  pair_sex = "unknown"
+  if (num_f == 2) {
+    pair_sex = "2F"
+  }
+  else if (num_m == 2) {
+    pair_sex = "2M"
+  }
+  else if (num_f == 1 & num_m == 1) {
+    pair_sex = "MF"
+  }
+
+  tmp<-data.frame(pair, pair_sex)
+  names(tmp)<-c("number","pair_sex")
+  number_twin_sex_df <- rbind(number_twin_sex_df, tmp)
+}
+
+assertthat::are_equal(nrow(number_twin_sex_df), nrow(unique_pairs))
+
+# Visualize the result 
+plot_list = list() 
+ggplot(number_twin_sex_df, aes("pair_sex")) +
+                  geom_histogram(binwidth = 1, stat="count")
+# plot_list[[1]] <- p
+
+# Save plots in one PDF
+# pdf("twins_sex.pdf")
+# for (i in 1:1) {
+#     print(plot_list[[i]])
+# }
+# dev.off()
+
+
+```
 
 RQ2: Mortality rate? - Create  a df for each twin pair showing their mother's info + categorical encoding for mortality (looking at Death column)
 
@@ -244,4 +308,34 @@ plot_histograms <- function(var, plot_list) {
 plot_list <- lapply(mother_attrs, plot_histograms, plot_list)
 typeof(y)
 plot_list
+```
+
+```{r}
+unique_pairs = unique(twins_only['number'])
+number_twin_sex_df = data.frame(number=integer(0), pair_sex=character(0))
+assertthat::are_equal(nrow(unique_pairs), nrow(twins_only)/2.)
+
+for (i in 1:nrow(unique_pairs)) {
+  pair = unique_pairs[i]
+  twins = twins_only[twins_only$number %in% pair,]
+  assertthat::are_equal(nrow(twins), 2)
+  
+  num_m = 0
+  num_f = 0 
+  unknown = 0
+  
+  # Count the number of Males/Females
+  twins_sex = twins["sex"]
+  print(twins_sex[[1]])
+  for (s in twins_sex[[1]]){
+    if (s == "F"){
+      num_f = num_f + 1
+    }
+    else if (s == "M"){
+      num_m = num_m + 1
+    }
+    
+    print(num_f)
+  }
+}
 ```
