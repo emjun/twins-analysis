@@ -128,5 +128,10 @@ Columns:
     
     - n_children: Number of children in the groups
     
-    - orderable: If you run the birth order.Rmd, it will add in a orderable variable which is 1 if the pair has birth order info and 0 otherwise
+    Variables added if run the birth order.Rmd
+    - orderable: 1 if the pair has birth order info from `lbo` and 0 otherwise
+    
+    - n_death: the number of deaths total in pairs
+    
+    - n_death1: indicator if there is a death in pairs - 1 if n_death>0, 0 otherwise
     
