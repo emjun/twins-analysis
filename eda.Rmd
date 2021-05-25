@@ -26,14 +26,6 @@ library(tidyverse)
 matched_children_df<-read.csv("./data/twins2013_matched_children.csv")
 ```
 
-
-```{r}
-children_groups = unique(matched_children_df['number'])
-
-doubled_df <- bind_rows(children_groups, children_groups)
-
-```
-
 Clean data to only look at twins
 ```{r}
 # Separate out twins
@@ -58,7 +50,6 @@ for(t in 1:length(twins_only$number)) {
 # GOAL: mothers only should have data for all unique mothers in the dataset, easy for us to create bar charts giving an overview of the mothers health
 ```
 
-
 RQ1: Difference in birth weight of twin pairs? - Create a dataframe for each twin pair showing their mother's info + difference in birth weight
 Visualize mothers data for twins
 ```{r}
@@ -69,17 +60,31 @@ Visualize mothers data for twins
 # cig_1: number of cigarettes daily during 1st Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated   
 # cig_2: number of cigarettes daily during 2nd Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
 # cig_3: number of cigarettes daily during 3rd Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
-names(mother_attrs) = list("mager41", "meduc")
 
-for (var in mother_attrs) {
-  ggplot(one_twin_only_df, aes(var)) +
-  geom_histogram(binwidth = 1)
+# List all the colnames/variables for mothers that we are interested in
+#mother_attrs = c("mager41", "meduc", "mracerec", "wtgain", "cig_1", "cig_2", "cig_3")
+mother_attrs = list("mager41", "meduc") #, "mracerec", "wtgain", "cig_1", "cig_2", "cig_3")
+
+plot_list = list()
+for (i in 1:length(mother_attrs)) {
+  var = names(mother_attrs)[i]
   print(var)
+  print(ggplot(one_twin_only_df, aes(var)) +
+  geom_histogram(binwidth = 1, stat="count"))
+  #plot_list[[i]] <- p
+  Sys.sleep(2)
 }
+
+
 ```
 
-ggplot(one_twin_only_df, aes(mager41)) +
-  geom_histogram()
+# Save plots in one PDF
+pdf("mothers_eda.pdf")
+for (i in 1:length(mother_attrs)) {
+    print(plot_list[[i]])
+}
+dev.off()
+
   
 Reformat twins only data
 
@@ -135,4 +140,31 @@ Most twins in the dataset live (death == 0)
 ```{r}
 ggplot(twins2013, aes(death)) +
   geom_histogram()
+```
+
+```{r}
+# WIP. Need to figure out how to mutate plot_list in plot_histograms function
+# Make plots
+plot_histograms <- function(var, plot_list) {
+  out <- tryCatch(
+    {
+      p = ggplot(one_twin_only_df, aes(as.integer(var))) +
+          geom_histogram(binwidth = 1)
+    },
+    error=function(cond) {
+      p = ggplot(one_twin_only_df, aes(as.factor(var))) +
+          geom_histogram(binwidth = 1, stat="count")
+    },
+    finally={
+      plot_list[[i]] <- p
+      print(plot_list)
+      sprintf('Done plotting %s', var)
+    }
+  )
+  return(out)
+}
+
+plot_list <- lapply(mother_attrs, plot_histograms, plot_list)
+typeof(y)
+plot_list
 ```
