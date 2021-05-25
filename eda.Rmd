@@ -57,26 +57,102 @@ Visualize mothers data for twins
 # meduc: mother's education coded in 9 levels - 1: 8th grade or less; 2: 9th through 12th grade with no diploma; 3: High school graduate or GED completed; 4: Some college credit, but not a degree; 5: Associate degree (AA,AS); 6: Bachelor’s degree (BA, AB, BS); 7: Master’s degree (MA, MS, MEng, MEd, MSW, MBA); 8: Doctorate (PhD, EdD) or Professional Degree (MD, DDS, DVM, LLB, JD); 9: Unknown
 # mracerec: mother's race coded in 4 levels: 1: White; 2: Black; 3: American Indian / Alaskan Native; 4: Asian / Pacific Islander
 # wtgain: weight gain in pounds - 00-97: Weight gain in pounds; 98: 98 pounds and over; 99: Unknown or not stated
-# cig_1: number of cigarettes daily during 1st Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated   
+# cig_1: number of cigarettes daily during 1st Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
 # cig_2: number of cigarettes daily during 2nd Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
 # cig_3: number of cigarettes daily during 3rd Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
+# rf_diab: prepregnancy diabetes - Y: Yes; N: No; U: Unknown or not stated
+# rf_gest: gestational diabetes - Y: Yes; N: No; U: Unknown or not stated
+# rf_phyp: prepregnancy hypertension - Y: Yes; N: No; U: Unknown or not stated
+# rf_ghyp: gestational hypertension - Y: Yes; N: No; U: Unknown or not stated
+# rf_eclam: hypertension eclampsia - Y: Yes; N: No; U: Unknown or not stated
+# rf_ppterm: previous preterm birth - Y: Yes; N: No; U: Unknown or not stated
+# rf_ppoutc: poor pregnancy outcome - Y: Yes; N: No; U: Unknown or not stated
+# rf_cesar: previous cesareans - Y: Yes; N: No; U: Unknown or not stated
+# rf_ncesar: number of previous cesareans - 00: None; 01-30: Number of previous cesareans; 99: Unknown or not stated
+
 
 # List all the colnames/variables for mothers that we are interested in
-#mother_attrs = c("mager41", "meduc", "mracerec", "wtgain", "cig_1", "cig_2", "cig_3")
-mother_attrs = list("mager41", "meduc") #, "mracerec", "wtgain", "cig_1", "cig_2", "cig_3")
+mother_attrs = c("mager41", "meduc", "mracerec", "wtgain", "cig_1", "cig_2", "cig_3", "rf_diab", "rf_diab", "rf_gest", "rf_phyp", "rf_ghyp", "rf_eclam", "rf_ppterm", "rf_ppoutc", "rf_cesar", "rf_ncesar")
+
 
 plot_list = list()
-for (i in 1:length(mother_attrs)) {
-  var = names(mother_attrs)[i]
-  print(var)
-  print(ggplot(one_twin_only_df, aes(var)) +
-  geom_histogram(binwidth = 1, stat="count"))
-  #plot_list[[i]] <- p
-  Sys.sleep(2)
-}
+plot_list[[1]] <- ggplot(one_twin_only_df, aes(mager41)) +
+                  geom_histogram(binwidth = 1)
 
+plot_list[[2]] <- ggplot(one_twin_only_df, aes(meduc)) +
+                  geom_histogram(binwidth = 1, stat="count")
 
-```
+plot_list[[3]] <- ggplot(one_twin_only_df, aes(mracerec)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[4]] <- ggplot(one_twin_only_df, aes(wtgain)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[5]] <- ggplot(one_twin_only_df, aes(cig_1)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[6]] <- ggplot(one_twin_only_df, aes(cig_2)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[7]] <- ggplot(one_twin_only_df, aes(cig_3)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[8]] <- ggplot(one_twin_only_df, aes(rf_diab)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[9]] <- ggplot(one_twin_only_df, aes(rf_diab)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[10]] <- ggplot(one_twin_only_df, aes(rf_gest)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[11]] <- ggplot(one_twin_only_df, aes(rf_phyp)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[12]] <- ggplot(one_twin_only_df, aes(rf_ghyp)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[13]] <- ggplot(one_twin_only_df, aes(rf_eclam)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[14]] <- ggplot(one_twin_only_df, aes(rf_ppterm)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[15]] <- ggplot(one_twin_only_df, aes(rf_ppoutc)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[16]] <- ggplot(one_twin_only_df, aes(rf_cesar)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[17]] <- ggplot(one_twin_only_df, aes(rf_ncesar)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+# BUG: Var is wrong type
+# idx = 1
+# for (i in 1:length(colnames(one_twin_only_df))) {
+#   col = colnames(one_twin_only_df)[i]
+#   var = as.name(col)
+#   
+#   if (col %in% mother_attrs) {
+#     p = ggplot(one_twin_only_df, aes(var)) +
+#                         geom_histogram(binwidth = 1, stat="count")
+#     plot_list[[idx]] <- p
+#     idx = idx + 1 # increment
+#     
+#   }
+#   
+# }
+  
+# for (i in 1:length(mother_attrs)) {
+#   var = mother_attrs[i]
+#   print(var)
+#   var = as.name(var)
+#   print(var)
+#   p <- ggplot(one_twin_only_df, aes(var)) +
+#   geom_histogram(binwidth = 1, stat="count")
+#   plot_list[[i]] <- p
+#   Sys.sleep(2)
+# }
 
 # Save plots in one PDF
 pdf("mothers_eda.pdf")
@@ -85,7 +161,8 @@ for (i in 1:length(mother_attrs)) {
 }
 dev.off()
 
-  
+```
+
 Reformat twins only data
 
 Twins sex -- male, male | female, female | male, female
