@@ -9,9 +9,10 @@ Exploratory data analysis
 
 Install and load dependencies
 ```{r}
-list.of.packages <- c("knitr", "tidyverse", "ggplot2", "Rcpp")
+list.of.packages <- c("knitr", "tidyverse", "ggplot2", "Rcpp", "gridExtra")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
+library(gridExtra)
 ```
 
 ```{r setup, include=FALSE}
@@ -41,28 +42,54 @@ twins_only <- filter(matched_children_df, n_children == 2)
 print('Only twins:' + nrow(twins_only))
 ```
 
-Visualize mothers data for twins
+Create dataset of one child per twin, trying to get unique mother info
 ```{r}
-mothers_only <- data.frame() # Create a new dataframe for mothers data only
-unique_twins_pairs = unique(twins_only['number'])
+one_twin_only_df = distinct(twins_only, number,.keep_all = TRUE)
+nrow(one_twin_only_df) # 53563
 
+
+# Do not look for discrepancies
 for(t in 1:length(twins_only$number)) {
   # While iterating through each twin, if there are discrepancies between mothers data, random choose which row of data to use
   
   # If no discrepancy, add first one to mothers_only df
-  
-  
 }
 
 # GOAL: mothers only should have data for all unique mothers in the dataset, easy for us to create bar charts giving an overview of the mothers health
 ```
 
-Reformat twins only data
+
 RQ1: Difference in birth weight of twin pairs? - Create a dataframe for each twin pair showing their mother's info + difference in birth weight
+Visualize mothers data for twins
+```{r}
+# mager41: mother's age - values 13 to 50 with 13-49 indicating 13-49 years old, 50 indicating 50-64 years old
+# meduc: mother's education coded in 9 levels - 1: 8th grade or less; 2: 9th through 12th grade with no diploma; 3: High school graduate or GED completed; 4: Some college credit, but not a degree; 5: Associate degree (AA,AS); 6: Bachelor’s degree (BA, AB, BS); 7: Master’s degree (MA, MS, MEng, MEd, MSW, MBA); 8: Doctorate (PhD, EdD) or Professional Degree (MD, DDS, DVM, LLB, JD); 9: Unknown
+# mracerec: mother's race coded in 4 levels: 1: White; 2: Black; 3: American Indian / Alaskan Native; 4: Asian / Pacific Islander
+# wtgain: weight gain in pounds - 00-97: Weight gain in pounds; 98: 98 pounds and over; 99: Unknown or not stated
+# cig_1: number of cigarettes daily during 1st Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated   
+# cig_2: number of cigarettes daily during 2nd Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
+# cig_3: number of cigarettes daily during 3rd Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
+names(mother_attrs) = list("mager41", "meduc")
+
+for (var in mother_attrs) {
+  ggplot(one_twin_only_df, aes(var)) +
+  geom_histogram(binwidth = 1)
+  print(var)
+}
+```
+
+ggplot(one_twin_only_df, aes(mager41)) +
+  geom_histogram()
+  
+Reformat twins only data
+
+Twins sex -- male, male | female, female | male, female
 
 RQ2: Mortality rate? - Create  a df for each twin pair showing their mother's info + categorical encoding for mortality (looking at Death column)
 
 RQ4: Create a df for each twin pair showing mother's info + categorical encoding for chromosomal abnormalities (both, one) for each chromosomal abnormality
+
+
 ```{r}
 # Create a new wide dataframe
 twins_only_numbers <- data.frame(number=character(),
