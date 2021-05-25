@@ -9,9 +9,10 @@ Exploratory data analysis
 
 Install and load dependencies
 ```{r}
-list.of.packages <- c("knitr", "tidyverse", "ggplot2", "Rcpp")
+list.of.packages <- c("knitr", "tidyverse", "ggplot2", "Rcpp", "gridExtra")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
+library(gridExtra)
 ```
 
 ```{r setup, include=FALSE}
@@ -25,14 +26,6 @@ library(tidyverse)
 matched_children_df<-read.csv("./data/twins2013_matched_children.csv")
 ```
 
-
-```{r}
-children_groups = unique(matched_children_df['number'])
-
-doubled_df <- bind_rows(children_groups, children_groups)
-
-```
-
 Clean data to only look at twins
 ```{r}
 # Separate out twins
@@ -41,28 +34,208 @@ twins_only <- filter(matched_children_df, n_children == 2)
 print('Only twins:' + nrow(twins_only))
 ```
 
-Visualize mothers data for twins
+Create dataset of one child per twin, trying to get unique mother info
 ```{r}
-mothers_only <- data.frame() # Create a new dataframe for mothers data only
-unique_twins_pairs = unique(twins_only['number'])
+one_twin_only_df = distinct(twins_only, number,.keep_all = TRUE)
+nrow(one_twin_only_df) # 53563
 
+
+# Do not look for discrepancies
 for(t in 1:length(twins_only$number)) {
   # While iterating through each twin, if there are discrepancies between mothers data, random choose which row of data to use
   
   # If no discrepancy, add first one to mothers_only df
-  
-  
 }
 
 # GOAL: mothers only should have data for all unique mothers in the dataset, easy for us to create bar charts giving an overview of the mothers health
 ```
 
-Reformat twins only data
 RQ1: Difference in birth weight of twin pairs? - Create a dataframe for each twin pair showing their mother's info + difference in birth weight
+Visualize mothers data for twins
+```{r}
+# mager41: mother's age - values 13 to 50 with 13-49 indicating 13-49 years old, 50 indicating 50-64 years old
+# meduc: mother's education coded in 9 levels - 1: 8th grade or less; 2: 9th through 12th grade with no diploma; 3: High school graduate or GED completed; 4: Some college credit, but not a degree; 5: Associate degree (AA,AS); 6: Bachelor’s degree (BA, AB, BS); 7: Master’s degree (MA, MS, MEng, MEd, MSW, MBA); 8: Doctorate (PhD, EdD) or Professional Degree (MD, DDS, DVM, LLB, JD); 9: Unknown
+# mracerec: mother's race coded in 4 levels: 1: White; 2: Black; 3: American Indian / Alaskan Native; 4: Asian / Pacific Islander
+# wtgain: weight gain in pounds - 00-97: Weight gain in pounds; 98: 98 pounds and over; 99: Unknown or not stated
+# cig_1: number of cigarettes daily during 1st Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
+# cig_2: number of cigarettes daily during 2nd Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
+# cig_3: number of cigarettes daily during 3rd Trimester - 00-97: Number of cigarettes daily; 98: 98 or more cigarettes daily; 99: Unknown or not stated
+# rf_diab: prepregnancy diabetes - Y: Yes; N: No; U: Unknown or not stated
+# rf_gest: gestational diabetes - Y: Yes; N: No; U: Unknown or not stated
+# rf_phyp: prepregnancy hypertension - Y: Yes; N: No; U: Unknown or not stated
+# rf_ghyp: gestational hypertension - Y: Yes; N: No; U: Unknown or not stated
+# rf_eclam: hypertension eclampsia - Y: Yes; N: No; U: Unknown or not stated
+# rf_ppterm: previous preterm birth - Y: Yes; N: No; U: Unknown or not stated
+# rf_ppoutc: poor pregnancy outcome - Y: Yes; N: No; U: Unknown or not stated
+# rf_cesar: previous cesareans - Y: Yes; N: No; U: Unknown or not stated
+# rf_ncesar: number of previous cesareans - 00: None; 01-30: Number of previous cesareans; 99: Unknown or not stated
+
+
+# List all the colnames/variables for mothers that we are interested in
+mother_attrs = c("mager41", "meduc", "mracerec", "wtgain", "cig_1", "cig_2", "cig_3", "rf_diab", "rf_diab", "rf_gest", "rf_phyp", "rf_ghyp", "rf_eclam", "rf_ppterm", "rf_ppoutc", "rf_cesar", "rf_ncesar")
+
+
+plot_list = list()
+plot_list[[1]] <- ggplot(one_twin_only_df, aes(mager41)) +
+                  geom_histogram(binwidth = 1)
+
+plot_list[[2]] <- ggplot(one_twin_only_df, aes(meduc)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[3]] <- ggplot(one_twin_only_df, aes(mracerec)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[4]] <- ggplot(one_twin_only_df, aes(wtgain)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[5]] <- ggplot(one_twin_only_df, aes(cig_1)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[6]] <- ggplot(one_twin_only_df, aes(cig_2)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[7]] <- ggplot(one_twin_only_df, aes(cig_3)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[8]] <- ggplot(one_twin_only_df, aes(rf_diab)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[9]] <- ggplot(one_twin_only_df, aes(rf_diab)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[10]] <- ggplot(one_twin_only_df, aes(rf_gest)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[11]] <- ggplot(one_twin_only_df, aes(rf_phyp)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[12]] <- ggplot(one_twin_only_df, aes(rf_ghyp)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[13]] <- ggplot(one_twin_only_df, aes(rf_eclam)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[14]] <- ggplot(one_twin_only_df, aes(rf_ppterm)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[15]] <- ggplot(one_twin_only_df, aes(rf_ppoutc)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[16]] <- ggplot(one_twin_only_df, aes(rf_cesar)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+plot_list[[17]] <- ggplot(one_twin_only_df, aes(rf_ncesar)) +
+                  geom_histogram(binwidth = 1, stat="count")
+
+# BUG: Var is wrong type
+# idx = 1
+# for (i in 1:length(colnames(one_twin_only_df))) {
+#   col = colnames(one_twin_only_df)[i]
+#   var = as.name(col)
+#   
+#   if (col %in% mother_attrs) {
+#     p = ggplot(one_twin_only_df, aes(var)) +
+#                         geom_histogram(binwidth = 1, stat="count")
+#     plot_list[[idx]] <- p
+#     idx = idx + 1 # increment
+#     
+#   }
+#   
+# }
+  
+# for (i in 1:length(mother_attrs)) {
+#   var = mother_attrs[i]
+#   print(var)
+#   var = as.name(var)
+#   print(var)
+#   p <- ggplot(one_twin_only_df, aes(var)) +
+#   geom_histogram(binwidth = 1, stat="count")
+#   plot_list[[i]] <- p
+#   Sys.sleep(2)
+# }
+
+# Save plots in one PDF
+pdf("mothers_eda.pdf")
+for (i in 1:length(mother_attrs)) {
+    print(plot_list[[i]])
+}
+dev.off()
+
+```
+
+What is the sex makeup of twins? 
+```{r}
+# Process data for pair twins
+# Get unique twin pair numbers
+unique_pairs = unique(twins_only['number'])
+number_twin_sex_df = data.frame(number=integer(0), pair_sex=character(0))
+assertthat::are_equal(nrow(unique_pairs), nrow(twins_only)/2.)
+
+for (pair in unique_pairs) {
+  twins = twins_only[twins_only$number %in% pair,]
+  assertthat::are_equal(nrow(twins), 2)
+  
+  num_m = 0
+  num_f = 0 
+  unknown = 0
+  
+  # Count the number of Males/Females
+  twins_sex = twins["sex"]
+  print(twins_sex[[1]])
+  for (s in twins_sex[[1]]){
+    if ("F" %in% s) {
+      num_f = num_f + 1
+    }
+    else if ("M" %in% s) {
+      num_m = num_m + 1
+    }
+    else {
+      unknown = unknown + 1
+    }
+  }
+
+  print(num_f)
+  print(num_m)
+  # Log the number of Males/Females
+  pair_sex = "unknown"
+  if (num_f == 2) {
+    pair_sex = "2F"
+  }
+  else if (num_m == 2) {
+    pair_sex = "2M"
+  }
+  else if (num_f == 1 & num_m == 1) {
+    pair_sex = "MF"
+  }
+
+  tmp<-data.frame(pair, pair_sex)
+  names(tmp)<-c("number","pair_sex")
+  number_twin_sex_df <- rbind(number_twin_sex_df, tmp)
+}
+
+assertthat::are_equal(nrow(number_twin_sex_df), nrow(unique_pairs))
+
+# Visualize the result 
+plot_list = list() 
+ggplot(number_twin_sex_df, aes("pair_sex")) +
+                  geom_histogram(binwidth = 1, stat="count")
+# plot_list[[1]] <- p
+
+# Save plots in one PDF
+# pdf("twins_sex.pdf")
+# for (i in 1:1) {
+#     print(plot_list[[i]])
+# }
+# dev.off()
+
+
+```
 
 RQ2: Mortality rate? - Create  a df for each twin pair showing their mother's info + categorical encoding for mortality (looking at Death column)
 
 RQ4: Create a df for each twin pair showing mother's info + categorical encoding for chromosomal abnormalities (both, one) for each chromosomal abnormality
+
+
 ```{r}
 # Create a new wide dataframe
 twins_only_numbers <- data.frame(number=character(),
@@ -108,4 +281,61 @@ Most twins in the dataset live (death == 0)
 ```{r}
 ggplot(twins2013, aes(death)) +
   geom_histogram()
+```
+
+```{r}
+# WIP. Need to figure out how to mutate plot_list in plot_histograms function
+# Make plots
+plot_histograms <- function(var, plot_list) {
+  out <- tryCatch(
+    {
+      p = ggplot(one_twin_only_df, aes(as.integer(var))) +
+          geom_histogram(binwidth = 1)
+    },
+    error=function(cond) {
+      p = ggplot(one_twin_only_df, aes(as.factor(var))) +
+          geom_histogram(binwidth = 1, stat="count")
+    },
+    finally={
+      plot_list[[i]] <- p
+      print(plot_list)
+      sprintf('Done plotting %s', var)
+    }
+  )
+  return(out)
+}
+
+plot_list <- lapply(mother_attrs, plot_histograms, plot_list)
+typeof(y)
+plot_list
+```
+
+```{r}
+unique_pairs = unique(twins_only['number'])
+number_twin_sex_df = data.frame(number=integer(0), pair_sex=character(0))
+assertthat::are_equal(nrow(unique_pairs), nrow(twins_only)/2.)
+
+for (i in 1:nrow(unique_pairs)) {
+  pair = unique_pairs[i]
+  twins = twins_only[twins_only$number %in% pair,]
+  assertthat::are_equal(nrow(twins), 2)
+  
+  num_m = 0
+  num_f = 0 
+  unknown = 0
+  
+  # Count the number of Males/Females
+  twins_sex = twins["sex"]
+  print(twins_sex[[1]])
+  for (s in twins_sex[[1]]){
+    if (s == "F"){
+      num_f = num_f + 1
+    }
+    else if (s == "M"){
+      num_m = num_m + 1
+    }
+    
+    print(num_f)
+  }
+}
 ```
