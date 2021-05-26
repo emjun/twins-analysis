@@ -316,7 +316,7 @@ number_twin_sex_df = data.frame(number=integer(0), pair_sex=character(0))
 assertthat::are_equal(nrow(unique_pairs), nrow(twins_only)/2.)
 
 for (i in 1:nrow(unique_pairs)) {
-  pair = unique_pairs[i]
+  pair = unique_pairs[i,]
   twins = twins_only[twins_only$number %in% pair,]
   assertthat::are_equal(nrow(twins), 2)
   
