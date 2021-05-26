@@ -71,6 +71,7 @@ nrow(twins_2013_quad_ord)+nrow(twins_2013_quin_ord)+nrow(twins_2013_trip_ord)+nr
 
 #percent of orderable data out of matched data
 nrow(twins_2013_ord)/nrow(twins2013_matched)
+length(unique(twins_2013_ord$number))/length(unique(twins2013_matched$number))
 
 #add orderable variable in twins2013_matched
 allord_num<-unique(twins_2013_ord$number)
@@ -81,19 +82,82 @@ table(twins2013_matched$orderable)
 # if missing birth order info is associated with some covariates
 
 ```{r}
+death_count<-twins2013_matched%>%group_by(number)%>%summarize(n_death=sum(death),n_death1=ifelse(n_death>0,1,0))
+twins2013_matched<-twins2013_matched%>%left_join(death_count, by="number")
+
 #pick one out of each pair
 library(splitstackshape)
 stratified_sample<-stratified(twins2013_matched, "number", 1)
 nrow(stratified_sample)
 length(unique(twins2013_matched$number))
 
+#filter out lbo=8
+stratified_no8<-stratified_sample%>%filter(lbo!=8)
 ```
 
 Some ideas:
-  - use the stratified sample to see if some general characteristic is associated with missing
+  - use the stratified sample to see if some general characteristic of parents is associated with missing
   - if having a death is associated with missing
-  - how to deal with lbo=8?  
-  
+  - how to deal with lbo=8? omit? done
+  - further check if lbo doesn't match tbo
+  - consistent missingness - coded 9 or 99 or U
+
+```{r}
+death_missing<-glm(orderable ~ n_death, family="binomial", data=stratified_no8)
+summary(death_missing)
+exp(coef(death_missing))
+
+death_missing1<-glm(orderable ~ n_death1, family="binomial", data=stratified_no8)
+summary(death_missing1)
+exp(coef(death_missing1))
+1/0.7362388
+```
+
+```{r}
+mom_missing<-glm(orderable ~ meduc+mracerec+fracerec+mager41, family="binomial", data=stratified_no8)
+summary(mom_missing)
+
+table(as.factor(stratified_no8$meduc))
+educ_missing<-glm(orderable ~ as.factor(meduc), family="binomial", data=stratified_no8)
+summary(educ_missing)
+
+table(as.factor(stratified_no8$mracerec))
+mrace_missing<-glm(orderable ~ as.factor(mracerec), family="binomial", data=stratified_no8)
+summary(mrace_missing)
+regress("odds", orderable ~ as.factor(mracerec), data=stratified_no8)
+
+table(as.factor(stratified_no8$fracerec))
+frace_missing<-glm(orderable ~ as.factor(fracerec), family="binomial", data=stratified_no8)
+summary(frace_missing)
+
+mage_missing<-glm(orderable ~ mager41, family="binomial", data=stratified_no8)
+summary(mage_missing)
+```
+
+```{r}
+ggplot(data=stratified_no8)+
+  geom_bar(aes(x=as.factor(meduc),fill=as.factor(orderable)), position = "fill")
+
+ggplot(data=stratified_no8)+
+  geom_bar(aes(x=as.factor(mracerec),fill=as.factor(orderable)), position = "fill")+
+  scale_x_discrete(labels = c("White", "Black", "American Indian / Alaskan Native", "Asian / Pacific Islander"))+
+  labs(x="mother's race", title = "Mother's racing and birth order info")+
+  scale_fill_discrete(name="Having birth order info",
+                         labels=c("No", "Yes"))
+
+```
+
+
+```{r}
+temp<-twins2013_matched%>%filter(lbo==8)
+nrow(temp)
+length(unique(temp$number))
+nrow(temp)/(nrow(twins2013_matched)-nrow(twins_2013_ord))
+
+temp<-twins2013_matched%>%filter(lbo==9)
+nrow(temp)
+length(unique(temp$number))
+```
 
 
 
