@@ -1,0 +1,118 @@
+---
+title: "Birth weight"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+matched0<-read.csv("Desktop/PhD/2021 Spring/STAT 566/project/twins-analysis/data/twins2013_matched_children.csv")
+matched<-matched0%>%filter(n_children==2)%>%select(-X.1, -X)
+```
+
+## Part 1: Birth weight difference for twins
+
+```{r}
+wtdiff<-matched%>%group_by(number)%>%summarise(wt_diff=max(dbwt)-min(dbwt), sex_pair=paste0(sex[1],sex[2]), sex_pairb=ifelse(sex_pair=="FF", 0, ifelse(sex_pair %in% c("MF","FM"),1,2)))
+matched<-matched%>%left_join(wtdiff, by="number")
+```
+
+```{r}
+#try spread
+orderable_twin<-matched%>%
+  group_by(number)%>%
+  summarise(orderable1=length(unique(lbo))==2,
+         orderable2=(max(lbo)-min(lbo)==1),
+         orderable=orderable1&orderable2)
+
+table(orderable_twin$orderable)
+
+orderable_num<-orderable_twin$number[orderable_twin$orderable]
+
+matched_ord<-matched%>%
+  mutate(orderable=ifelse(number%in%orderable_num,1,0))
+
+matched_ord_stratified<-stratified(matched_ord, "number", 1)
+
+hist(matched_ord_stratified$wt_diff, xlim = c(0,500), breaks = 3000)
+
+lm1<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+sex_pair, data = matched_ord_stratified)
+summary(lm1)
+
+lm2<-lm(wt_diff~mager41+mracerec+wtgain+sex_pair, data = matched_ord_stratified)
+summary(lm2)
+
+# matched_ord_1<-matched_ord%>%
+#   group_by(number)%>%
+#   summarise(dbwt=dbwt,order=ifelse(orderable==1, lbo-min(lbo)+1, row_number()))
+# table((matched_ord_1%>%group_by(number)%>%summarise(check=(max(order)==2)))$check)
+# 
+# matched_with_order <- matched_ord%>%
+#   left_join(matched_ord_1, by=c("number", "dbwt"))
+#   
+# try_wide<-matched_with_order[1:100, ]%>%
+#   spread(key=order, value=apgar5)
+
+
+
+
+```
+
+
+### Repeat the analysis for g-g, g-b, b-b
+
+
+```{r}
+matched_ord_stratified_FF<-matched_ord_stratified%>%filter(sex_pairb==0)
+matched_ord_stratified_MF<-matched_ord_stratified%>%filter(sex_pairb==1)
+matched_ord_stratified_MM<-matched_ord_stratified%>%filter(sex_pairb==2)
+matched_ord_stratified_homo<-matched_ord_stratified%>%filter(sex_pairb!=1)
+```
+
+
+```{r}
+lm1_FF<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain, data = matched_ord_stratified_FF)
+summary(lm1_FF)
+
+lm2_FF<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_ord_stratified_FF)
+summary(lm2_FF)
+
+lm1_MF<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain, data = matched_ord_stratified_MF)
+summary(lm1_MF)
+
+lm2_MF<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_ord_stratified_MF)
+summary(lm2_MF)
+
+
+lm1_MM<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain, data = matched_ord_stratified_MM)
+summary(lm1_MM)
+
+lm2_MM<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_ord_stratified_MM)
+summary(lm2_MM)
+#mother's race is not less significant
+
+lm1_homo<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain, data = matched_ord_stratified_homo)
+summary(lm1_homo)
+
+lm2_homo<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_ord_stratified_homo)
+summary(lm2_homo)
+
+```
+
+
+
+
+
+
+
+## Part 2: Mean birth weight for all non-singletons
+
+
+### Repeat the analysis for all g, all b, mix
+
+
+
+## Part 3: PC algorithm
+
