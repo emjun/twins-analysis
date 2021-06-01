@@ -106,7 +106,6 @@ summary(lm2_homo)
 
 
 
-
 ## Part 2: Mean birth weight for all non-singletons
 
 
