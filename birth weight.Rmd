@@ -1,6 +1,8 @@
 ---
 title: "Birth weight"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -8,40 +10,130 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-matched0<-read.csv("Desktop/PhD/2021 Spring/STAT 566/project/twins-analysis/data/twins2013_matched_children.csv")
-matched<-matched0%>%filter(n_children==2)%>%select(-X.1, -X)
+library(tidyverse)
+library(splitstackshape)
+matched0<-read.csv("~/Desktop/PhD/2021 Spring/STAT 566/project/twins-analysis/data/twins2013_matched_children.csv")
+
+matched_twin<-matched0%>%
+  filter(n_children==2)%>%
+  select(-X.1, -X)
+
+missing.wt<-matched_twin$number[matched_twin$dbwt==9999]
+
+matched_twin<-matched_twin%>%
+  filter(!(number%in%missing.wt))
+
+matched_twin%>%filter(dbwt==9999)
+
+matched_all<-matched0%>%
+  select(-X.1, -X)
+
+missing.wt<-matched_all$number[matched_all$dbwt==9999]
+
+matched_all<-matched_all%>%
+  filter(!(number%in%missing.wt))
+matched_all%>%filter(dbwt==9999)
+
+matched_diff<-matched_diff%>%
+  filter(cig_1!=99)%>%
+  mutate(preg.condi=str_detect(paste0(rf_diab,rf_gest,rf_phyp,rf_ghyp,rf_eclam,rf_ppterm,rf_ppoutc,rf_cesar),"Y"))
+
+matched_all<-matched_all%>%
+  filter(cig_1!=99)%>%
+  mutate(preg.condi=str_detect(paste0(rf_diab,rf_gest,rf_phyp,rf_ghyp,rf_eclam,rf_ppterm,rf_ppoutc,rf_cesar),"Y"))
 ```
+
+# Question 1: Does mother’s health have an impact on the difference in birth weight of twin pairs?
 
 ## Part 1: Birth weight difference for twins
 
 ```{r}
-wtdiff<-matched%>%group_by(number)%>%summarise(wt_diff=max(dbwt)-min(dbwt), sex_pair=paste0(sex[1],sex[2]), sex_pairb=ifelse(sex_pair=="FF", 0, ifelse(sex_pair %in% c("MF","FM"),1,2)))
-matched<-matched%>%left_join(wtdiff, by="number")
+wtdiff<-matched_twin%>%
+  group_by(number)%>%
+  summarise(wt_diff=max(dbwt)-min(dbwt), 
+            sex_pair=paste0(sex[1],sex[2]), 
+            sex_pairb=ifelse(sex_pair=="FF", 0, 
+                             ifelse(sex_pair %in% c("MF","FM"),1,2)),)
+matched_diff<-matched_twin%>%
+  left_join(wtdiff, by="number")
+
+sort(matched_diff$wt_diff)
 ```
 
 ```{r}
-#try spread
-orderable_twin<-matched%>%
-  group_by(number)%>%
-  summarise(orderable1=length(unique(lbo))==2,
-         orderable2=(max(lbo)-min(lbo)==1),
-         orderable=orderable1&orderable2)
+#Some EDA
+ggplot(data=matched_diff)+
+  geom_point(aes(x=mager41, y=wt_diff))
 
-table(orderable_twin$orderable)
+head(sort(matched_diff$wt_diff, decreasing = TRUE))
 
-orderable_num<-orderable_twin$number[orderable_twin$orderable]
+matched_diff%>%filter(wt_diff==5820)
 
-matched_ord<-matched%>%
-  mutate(orderable=ifelse(number%in%orderable_num,1,0))
 
-matched_ord_stratified<-stratified(matched_ord, "number", 1)
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=as.factor(mracerec), y=wt_diff))+
+  ylim(0,1000)
+  
 
-hist(matched_ord_stratified$wt_diff, xlim = c(0,500), breaks = 3000)
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=as.factor(fracerec), y=wt_diff))+
+  ylim(0,1000)
 
-lm1<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+sex_pair, data = matched_ord_stratified)
+
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=as.factor(cig_1), y=wt_diff))+
+  ylim(0,1000)
+
+
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=as.factor(wtgain), y=wt_diff))+
+  ylim(0,1000)
+
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=sex_pair, y=wt_diff))+
+  ylim(0,1000)
+
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=as.factor(sex_pairb), y=wt_diff))+
+  ylim(0,1000)
+
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=as.factor(mar), y=wt_diff))+
+  ylim(0,1000)
+
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=as.factor(restatus), y=wt_diff))+
+  ylim(0,1000)
+
+ggplot(data=matched_diff)+
+  geom_boxplot(aes(x=preg.condi, y=wt_diff))+
+  ylim(0,1000)
+
+```
+
+
+```{r}
+# orderable_twin<-matched_diff%>%
+#   group_by(number)%>%
+#   summarise(orderable1=length(unique(lbo))==2,
+#          orderable2=(max(lbo)-min(lbo)==1),
+#          orderable=orderable1&orderable2)
+# 
+# table(orderable_twin$orderable)
+# 
+# orderable_num<-orderable_twin$number[orderable_twin$orderable]
+# 
+# matched_diff_ord<-matched_diff%>%
+#   mutate(orderable=ifelse(number%in%orderable_num,1,0)) #actually don't need all steps before since not interested in order
+
+matched_diff_ord_stratified<-stratified(matched_diff, "number", 1)
+
+hist(matched_diff_ord_stratified$wt_diff, xlim = c(0,500), breaks = 3000)
+
+lm1<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+sex_pair+mar+preg.condi, data = matched_diff_ord_stratified)
 summary(lm1)
 
-lm2<-lm(wt_diff~mager41+mracerec+wtgain+sex_pair, data = matched_ord_stratified)
+lm2<-lm(wt_diff~mager41+mracerec+wtgain+sex_pair+preg.condi, data = matched_diff_ord_stratified)
 summary(lm2)
 
 # matched_ord_1<-matched_ord%>%
@@ -65,53 +157,158 @@ summary(lm2)
 
 
 ```{r}
-matched_ord_stratified_FF<-matched_ord_stratified%>%filter(sex_pairb==0)
-matched_ord_stratified_MF<-matched_ord_stratified%>%filter(sex_pairb==1)
-matched_ord_stratified_MM<-matched_ord_stratified%>%filter(sex_pairb==2)
-matched_ord_stratified_homo<-matched_ord_stratified%>%filter(sex_pairb!=1)
+matched_diff_ord_stratified_FF<-matched_diff_ord_stratified%>%filter(sex_pairb==0)
+matched_diff_ord_stratified_MF<-matched_diff_ord_stratified%>%filter(sex_pairb==1)
+matched_diff_ord_stratified_MM<-matched_diff_ord_stratified%>%filter(sex_pairb==2)
+matched_diff_ord_stratified_homo<-matched_diff_ord_stratified%>%filter(sex_pairb!=1)
 ```
 
 
 ```{r}
-lm1_FF<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain, data = matched_ord_stratified_FF)
+lm1_FF<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_diff_ord_stratified_FF)
 summary(lm1_FF)
 
-lm2_FF<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_ord_stratified_FF)
+lm2_FF<-lm(wt_diff~mager41+mracerec+wtgain+preg.condi, data = matched_diff_ord_stratified_FF)
 summary(lm2_FF)
 
-lm1_MF<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain, data = matched_ord_stratified_MF)
+lm1_MF<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_diff_ord_stratified_MF)
 summary(lm1_MF)
 
-lm2_MF<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_ord_stratified_MF)
+lm2_MF<-lm(wt_diff~mager41+mracerec+wtgain+preg.condi, data = matched_diff_ord_stratified_MF)
 summary(lm2_MF)
 
 
-lm1_MM<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain, data = matched_ord_stratified_MM)
+lm1_MM<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_diff_ord_stratified_MM)
 summary(lm1_MM)
 
-lm2_MM<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_ord_stratified_MM)
+lm2_MM<-lm(wt_diff~mager41+mracerec+wtgain+preg.condi, data = matched_diff_ord_stratified_MM)
 summary(lm2_MM)
 #mother's race is not less significant
 
-lm1_homo<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain, data = matched_ord_stratified_homo)
+lm1_homo<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_diff_ord_stratified_homo)
 summary(lm1_homo)
 
-lm2_homo<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_ord_stratified_homo)
+lm2_homo<-lm(wt_diff~mager41+mracerec+wtgain+preg.condi, data = matched_diff_ord_stratified_homo)
 summary(lm2_homo)
 
+
 ```
-
-
-
 
 
 
 ## Part 2: Mean birth weight for all non-singletons
 
+```{r}
+table(matched_all$n_children)
+wtmean<-matched_all%>%
+  group_by(number)%>%
+  summarise(wt_mean=mean(dbwt), 
+            sex_pair=str_replace_all(paste0(sex[1],sex[2],sex[3],sex[4],sex[5]),"NA","" ),
+            sex_pairb=ifelse(sex_pair%in%c("FF","FFF","FFFF","FFFFF"), 0, 
+                             ifelse(sex_pair %in% c("MM","MMM","MMMM","MMMMM"),2,1))
+            )
+
+matched_mean<-matched_all%>%
+  left_join(wtmean, by="number")
+```
+
+```{r}
+#Some EDA
+ggplot(data=matched_mean)+
+  geom_point(aes(x=mager41, y=wt_mean))
+
+head(sort(matched_diff$wt_diff, decreasing = TRUE))
+
+matched_diff%>%filter(wt_diff==5820)
+
+
+ggplot(data=matched_mean)+
+  geom_boxplot(aes(x=as.factor(mracerec), y=wt_mean))
+  
+
+ggplot(data=matched_mean)+
+  geom_boxplot(aes(x=as.factor(fracerec), y=wt_mean))
+
+
+ggplot(data=matched_mean)+
+  geom_boxplot(aes(x=as.factor(cig_1), y=wt_mean))
+
+
+ggplot(data=matched_mean)+
+  geom_boxplot(aes(x=as.factor(wtgain), y=wt_mean))
+
+
+ggplot(data=matched_mean)+
+  geom_boxplot(aes(x=as.factor(sex_pairb), y=wt_mean))
+
+ggplot(data=matched_mean)+
+  geom_boxplot(aes(x=as.factor(mar), y=wt_mean))
+
+ggplot(data=matched_mean)+
+  geom_boxplot(aes(x=as.factor(restatus), y=wt_mean))
+
+ggplot(data=matched_mean)+
+  geom_boxplot(aes(x=preg.condi, y=wt_mean))
+
+```
+
+
+```{r}
+matched_mean_stratified<-stratified(matched_mean, "number", 1)
+
+hist(matched_mean_stratified$wt_mean,  breaks = 300)
+
+lm1<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+as.factor(sex_pairb)+mar+preg.condi, data = matched_mean_stratified)
+summary(lm1)
+
+```
+
+
 
 ### Repeat the analysis for all g, all b, mix
 
+```{r}
+matched_mean_stratified_allF<-matched_mean_stratified%>%filter(sex_pairb==0)
+matched_mean_stratified_FandM<-matched_mean_stratified%>%filter(sex_pairb==1)
+matched_mean_stratified_allM<-matched_mean_stratified%>%filter(sex_pairb==2)
+matched_mean_stratified_homo<-matched_mean_stratified%>%filter(sex_pairb!=1)
+```
 
 
-## Part 3: PC algorithm
+```{r}
+lm1_allF<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_mean_stratified_allF)
+summary(lm1_allF)
+
+
+lm1_FandM<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_mean_stratified_FandM)
+summary(lm1_FandM)
+
+
+lm1_allM<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_mean_stratified_allM)
+summary(lm1_allM) #cig_1 is not significant
+
+
+lm1_homo<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_mean_stratified_homo)
+summary(lm1_homo)
+
+```
+
+
+# Question 2: Does birth weight have an impact on mortality rate?
+
+
+level 1: $y=b0+b1*bw+b2*apgar5+b3*sex$
+
+level 2: $b0=a0+a1*mager41+a2*mracerec+a3*fracerec+a4*cig_1+a5*wtgain$
+         
+```{r}
+library(lme4)
+mixed.lmer1 <- glmer(death ~ dbwt + mager41+mracerec+fracerec+cig_1+wtgain+sex+apgar5 +(1|number), data = matched_all, family = "binomial")
+summary(mixed.lmer1)
+```
+
+mean birth weight and mortality rate within pair?
+
+
+# PC algorithm
 
