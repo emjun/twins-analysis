@@ -33,4 +33,7 @@ Run `eda.Rmd` which takes as input the matched CSV (output from `matching_pairs.
 
 # Presentations
 Initial project overview: https://docs.google.com/presentation/d/1mMjyNRkq14cksO3MPji0mi4Vsnqf55Rp1gwpX0l6-7M/edit?usp=sharing
-Final presentation: TBD
+Final presentation: https://drive.google.com/file/d/14LfvehJNgT5GVQfMS5rDDAjpYzbQ61Qs/view?usp=sharing
+
+# Final Report
+https://docs.google.com/document/d/1elpzq_1SMYpzoXjyAIYY9nNp4tq2M9rhyR_pgaxh-Xs/edit?usp=sharing 

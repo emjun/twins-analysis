@@ -12,6 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 twins2013_matched <- read.csv("~/Desktop/PhD/2021 Spring/STAT 566/project/data/twins_2013_matched.csv")
 twins2013_matched <- twins2013_matched%>%select(-X, -X1)
+
+missing.wt<-twins2013_matched$number[matched_all$dbwt==9999]
+twins2013_matched<-twins2013_matched%>%
+  filter(!(number%in%missing.wt),cig_1!=99)%>%
+  mutate(preg.condi=str_detect(paste0(rf_diab,rf_gest,rf_phyp,rf_ghyp,rf_eclam,rf_ppterm,rf_ppoutc,rf_cesar),"Y"))
 ```
 
 # Determine Birth Order
@@ -158,6 +163,62 @@ temp<-twins2013_matched%>%filter(lbo==9)
 nrow(temp)
 length(unique(temp$number))
 ```
+
+## Analysis: Does birth order have an impact on birth weight?
+
+level 1: $bw=b0+b1*birth_order+b2*apgar5+b3*sex$
+
+level 2: $b0=a0+a1*mager41+a2*mracerec+a3*fracerec+a4*cig_1+a5*wtgain+a6*preg.condi$
+
+```{r}
+order_assign<-twins_2013_ord%>%group_by(number)%>%summarise(lbo=lbo,order=lbo-min(lbo)+1)
+twins_2013_ord<-twins_2013_ord%>%left_join(order_assign, by=c("lbo", "number"))
+
+set.seed(4)
+random.num<-sample(unique(matched_all$number), size=10000, replace = F)
+random.twins_2013_ord<-twins_2013_ord%>%filter(number%in% random.num)
+
+mixed.lmer1 <- lmer(dbwt ~ order + mager41+mracerec+fracerec+cig_1+wtgain+sex+apgar5+preg.condi +(1|number), data = random.twins_2013_ord)
+summary(mixed.lmer1)
+
+mixed.lmer2 <- lmer(dbwt ~ order + mager41+mracerec+fracerec+cig_1+wtgain+sex+apgar5+preg.condi +(order|number), data = twins_2013_ord)
+summary(mixed.lmer2)
+
+mixed.lmer3 <- lmer(dbwt ~ order + mager41+mracerec+fracerec+cig_1+wtgain+sex+apgar5+preg.condi +(1|number), data = twins_2013_ord)
+summary(mixed.lmer3)
+
+mixed.lmer.uncon <- lmer(dbwt ~ 1 +(1|number), data = random.twins_2013_ord)
+summary(mixed.lmer.uncon)
+
+mixed.lmer.uncon2 <- lmer(dbwt ~ 1 +(1|number), data = twins_2013_ord)
+summary(mixed.lmer.uncon2)
+
+anova(mixed.lmer.uncon, mixed.lmer1)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
