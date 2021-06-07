@@ -209,4 +209,107 @@ if (plotcpdag) {
   plot(pc.fit, main = "Estimated CPDAG",labels=colnames(data))
 }
 ```
+
+Try PC algo with unit of analysis as twin pair again with lbw (instead of weight difference), fewer categories for weight gain, mager41 instead of mager9
+```{r}
+#mother’s race, age, marital status, weight gain, father’s race, twin pair’s sex combinationn assigned at birth.
+matched_children_df<-read.csv("./data/twins2013_matched_children.csv")
+twins_only <- filter(matched_children_df, n_children == 2)
+
+# Make mother's health numeric and categorical
+twins_only$rf_diab_num<-ifelse(twins_only$rf_diab=="Y", 1, 0)
+twins_only$rf_gest_num<-ifelse(twins_only$rf_gest=="Y", 1, 0)
+twins_only$rf_phyp_num<-ifelse(twins_only$rf_phyp=="Y", 1, 0)
+twins_only$rf_ghyp_num<-ifelse(twins_only$rf_ghyp=="Y", 1, 0)
+twins_only$rf_eclam_num<-ifelse(twins_only$rf_eclam=="Y", 1, 0)
+twins_only$rf_ppterm_num<-ifelse(twins_only$rf_ppterm=="Y", 1, 0)
+twins_only$rf_ppoutc_num<-ifelse(twins_only$rf_ppoutc=="Y", 1, 0)
+twins_only$rf_cesar_num<-ifelse(twins_only$rf_cesar=="Y", 1, 0)
+# Make weight gain categorical
+# Filter out missing weight gain data
+twins_only<-filter(twins_only, wtgain < 99)
+twins_only$wtgain_cat<-cut(twins_only$wtgain, seq(-1,100,25), labels=c(1,2,3,4))
+# Make cigarette categorical
+twins_only$cig_1_binary<-ifelse(twins_only$cig_1>0, 1, 0)
+twins_only$cig_2_binary<-ifelse(twins_only$cig_2>0, 1, 0)
+twins_only$cig_3_binary<-ifelse(twins_only$cig_3>0, 1, 0)
+
+# Twin pair sex
+twins_sex<-twins_only%>%group_by(number)%>%summarise(sex_pair=paste0(sex[1],sex[2]),
+sex_pairb=ifelse(sex_pair=="FF", 0, ifelse(sex_pair %in% c("MF","FM"),1,2)),)
+
+# Twin pair congenital abnormalities
+# Add a categorical variable indicating if baby has any one of the congenital abnormalities
+twins_only$ca_combined<-paste0(twins_only$ca_anen, twins_only$ca_menin, twins_only$ca_heart, twins_only$ca_hernia, twins_only$ca_ompha, twins_only$ca_gastro, twins_only$ca_limb, twins_only$ca_cleftlp, twins_only$ca_cleft, twins_only$ca_downs, twins_only$ca_chrom, twins_only$ca_hypos)
+twins_only$ca_count<-str_count(twins_only$ca_combined, "Y")
+twins_only$ca_binary<-ifelse(twins_only$ca_count>0, 1, 0)
+twins_ca<-twins_only%>%group_by(number)%>%summarise(ca_pair=paste0(ca_binary[1],ca_binary[2]),
+ca_pairb=ifelse(ca_pair=="11", 2, ifelse(ca_pair %in% c("01","10"),1,0)),)
+
+# Twin pair newborn abnormalities
+# Make newborn abnormal conditions numeric
+twins_only$ab_vent_num<-ifelse(twins_only$ab_vent=="Y", 1, 0)
+twins_only$ab_nicu_num<-ifelse(twins_only$ab_nicu=="Y", 1, 0)
+twins_only$ab_surfac_num<-ifelse(twins_only$ab_surfac=="Y", 1, 0)
+twins_only$ab_antibio_num<-ifelse(twins_only$ab_antibio=="Y", 1, 0)
+twins_only$ab_combined<-paste0(twins_only$ab_vent, twins_only$ab_nicu, twins_only$ab_surfac, twins_only$ab_antibio)
+twins_only$ab_count<-str_count(twins_only$ab_combined, "Y")
+twins_only$ab_binary<-ifelse(twins_only$ab_count>0, 1, 0)
+twins_ab<-twins_only%>%group_by(number)%>%summarise(ab_pair=paste0(ab_binary[1],ab_binary[2]),
+ab_pairb=ifelse(ab_pair=="11", 2, ifelse(ab_pair %in% c("01","10"),1,0)),)
+
+# Twin pair weight difference
+mean_weight<-twins_only%>%group_by(number)%>%summarise(mean_weight=mean(dbwt[1], dbwt[2]))
+
+# Twin pair low birth weight
+# Filter out missing data
+twins_only<-filter(twins_only, dbwt < 9999)
+twins_only$lbwt<- ifelse(twins_only$dbwt < 2500, 1, 0)
+twins_lbw<-twins_only%>%group_by(number)%>%summarise(lbw_pair=paste0(x=lbwt[1],lbwt[2]), lbw_pairb=str_count(lbw_pair,"1"))
+
+# Twin pair death
+twins_death<-twins_only%>%group_by(number)%>%summarise(death_pair=paste0(death[1],death[2]),
+death_pairb=ifelse(death_pair=="11", 2, ifelse(death_pair %in% c("01","10"),1,0)),)
+
+
+# Merge all the tables together
+tmp <- merge(x = twins_sex, y = twins_ca, by = "number")
+tmp <- merge(x = tmp, y = twins_ab, by = "number")
+tmp <- merge(x = tmp, y = twins_lbw, by = "number")
+tmp <- merge(x = tmp, y = twins_death, by = "number")
+tmp <- merge(x = tmp, y = twins_only, by = "number")
+
+tmp<-distinct(tmp, number, .keep_all = TRUE)
+assertthat::are_equal(nrow(tmp)*2, nrow(twins_only))
+
+
+keeps <- c("mager41", "meduc", "mracerec", "fracerec", "wtgain_cat","cig_1_binary", "cig_2_binary", "cig_3_binary", "mar", "sex_pairb", "ab_pairb", "ca_pairb", "death_pairb", "lbw_pairb")
+
+data<-tmp[ , names(tmp) %in% keeps]
+assertthat::are_equal(nrow(data)*2, nrow(twins_only))
+
+```
+Run the PC algo
+```{r}
+# Initialize PC algo
+p <- length(keeps) # 62 variables 
+assertthat::are_equal(50372, nrow(data))
+n <- nrow(data) # sample size 
+rnames <- rownames(data)
+names <- rnames <- colnames(data)
+suffStat <- list(C=data, n=n)
+
+attr(data,"names")
+
+##### Using the PC Algorithm to do the job for us:
+indepTest <- pcalg::gaussCItest
+
+## estimate CPDAG
+alpha <- 0.05
+pc.fit <- pcalg::pc(suffStat, indepTest, p = p, alpha = alpha, verbose = TRUE)
+pcalg::showAmat(pc.fit)
+pcalg::showEdgeList(pc.fit,names)
+if (plotcpdag) {
+  plot(pc.fit, main = "Estimated CPDAG",labels=colnames(data))
+}
 ```
