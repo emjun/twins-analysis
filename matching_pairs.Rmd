@@ -140,3 +140,33 @@ check$identifier
 
 ```
 
+
+```{r}
+#Death props 
+
+#original overall data
+# 19644/3803447
+# [1] 0.005164789
+
+#original data with dplural=2
+# > 3198/132589
+# [1] 0.02411965
+
+#original data with dplural!=1
+# > (3198+266+37+14)/(132589+4392+270+66)
+# [1] 0.0255977
+
+#our data with dplural!=1
+# > 2397/110731
+# [1] 0.02164705
+
+# > table(matched_all[matched_all$death==1,]$n_children)
+# 
+#    2    3    4    5 
+# 2227  145   23    2 
+
+#our data with dplural=2
+# > 2227/107126
+# [1] 0.0207886
+
+```

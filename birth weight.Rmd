@@ -34,9 +34,6 @@ matched_all<-matched_all%>%
   filter(!(number%in%missing.wt))
 matched_all%>%filter(dbwt==9999)
 
-matched_diff<-matched_diff%>%
-  filter(cig_1!=99)%>%
-  mutate(preg.condi=str_detect(paste0(rf_diab,rf_gest,rf_phyp,rf_ghyp,rf_eclam,rf_ppterm,rf_ppoutc,rf_cesar),"Y"))
 
 matched_all<-matched_all%>%
   filter(cig_1!=99)%>%
@@ -57,7 +54,10 @@ wtdiff<-matched_twin%>%
 matched_diff<-matched_twin%>%
   left_join(wtdiff, by="number")
 
-sort(matched_diff$wt_diff)
+matched_diff<-matched_diff%>%
+  filter(cig_1!=99)%>%
+  mutate(preg.condi=str_detect(paste0(rf_diab,rf_gest,rf_phyp,rf_ghyp,rf_eclam,rf_ppterm,rf_ppoutc,rf_cesar),"Y"))
+
 ```
 
 ```{r}
@@ -108,6 +108,7 @@ ggplot(data=matched_diff)+
 ggplot(data=matched_diff)+
   geom_boxplot(aes(x=preg.condi, y=wt_diff))+
   ylim(0,1000)
+with(matched_diff, tapply(wt_diff, preg.condi, summary))
 
 ```
 
@@ -130,11 +131,16 @@ matched_diff_ord_stratified<-stratified(matched_diff, "number", 1)
 
 hist(matched_diff_ord_stratified$wt_diff, xlim = c(0,500), breaks = 3000)
 
-lm1<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+sex_pair+mar+preg.condi, data = matched_diff_ord_stratified)
+lm1<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+sex_pair+mar, data = matched_diff_ord_stratified)
 summary(lm1)
 
 lm2<-lm(wt_diff~mager41+mracerec+wtgain+sex_pair+preg.condi, data = matched_diff_ord_stratified)
 summary(lm2)
+
+matched_diff_ord_stratified$smoking<-ifelse(matched_diff_ord_stratified$cig_1 >1,1,0)
+
+lm3<-lm(wt_diff~mager41+mracerec+fracerec+smoking+wtgain+sex_pair+mar+preg.condi, data = matched_diff_ord_stratified)
+summary(lm3)
 
 # matched_ord_1<-matched_ord%>%
 #   group_by(number)%>%
@@ -146,10 +152,6 @@ summary(lm2)
 #   
 # try_wide<-matched_with_order[1:100, ]%>%
 #   spread(key=order, value=apgar5)
-
-
-
-
 ```
 
 
@@ -168,27 +170,27 @@ matched_diff_ord_stratified_homo<-matched_diff_ord_stratified%>%filter(sex_pairb
 lm1_FF<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_diff_ord_stratified_FF)
 summary(lm1_FF)
 
-lm2_FF<-lm(wt_diff~mager41+mracerec+wtgain+preg.condi, data = matched_diff_ord_stratified_FF)
+lm2_FF<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_diff_ord_stratified_FF)
 summary(lm2_FF)
 
 lm1_MF<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_diff_ord_stratified_MF)
 summary(lm1_MF)
 
-lm2_MF<-lm(wt_diff~mager41+mracerec+wtgain+preg.condi, data = matched_diff_ord_stratified_MF)
+lm2_MF<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_diff_ord_stratified_MF)
 summary(lm2_MF)
 
 
 lm1_MM<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_diff_ord_stratified_MM)
 summary(lm1_MM)
 
-lm2_MM<-lm(wt_diff~mager41+mracerec+wtgain+preg.condi, data = matched_diff_ord_stratified_MM)
+lm2_MM<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_diff_ord_stratified_MM)
 summary(lm2_MM)
 #mother's race is not less significant
 
 lm1_homo<-lm(wt_diff~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_diff_ord_stratified_homo)
 summary(lm1_homo)
 
-lm2_homo<-lm(wt_diff~mager41+mracerec+wtgain+preg.condi, data = matched_diff_ord_stratified_homo)
+lm2_homo<-lm(wt_diff~mager41+mracerec+wtgain, data = matched_diff_ord_stratified_homo)
 summary(lm2_homo)
 
 
@@ -250,6 +252,7 @@ ggplot(data=matched_mean)+
 ggplot(data=matched_mean)+
   geom_boxplot(aes(x=preg.condi, y=wt_mean))
 
+with(matched_mean, tapply(wt_mean, preg.condi, summary))
 ```
 
 
@@ -258,9 +261,24 @@ matched_mean_stratified<-stratified(matched_mean, "number", 1)
 
 hist(matched_mean_stratified$wt_mean,  breaks = 300)
 
-lm1<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+as.factor(sex_pairb)+mar+preg.condi, data = matched_mean_stratified)
+lm1<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+as.factor(sex_pairb)+mar, data = matched_mean_stratified)
 summary(lm1)
 
+matched_mean_stratified$smoking<-ifelse(matched_mean_stratified$cig_1 >1,1,0)
+
+lm2<-lm(wt_mean~mager41+as.factor(mracerec)+smoking+wtgain+as.factor(sex_pairb)+mar, data = matched_mean_stratified)
+summary(lm2)
+
+table(matched_mean_stratified$preg.condi)
+matched_mean_stratified_smoking<-matched_mean_stratified%>%filter(smoking==1)
+matched_mean_stratified_nonsmoking<-matched_mean_stratified%>%filter(smoking==0)
+
+
+lm2s<-lm(wt_mean~mager41+as.factor(mracerec)+wtgain+as.factor(sex_pairb)+mar+preg.condi, data = matched_mean_stratified_smoking)
+summary(lm2s)
+
+lm2n<-lm(wt_mean~mager41+as.factor(mracerec)+wtgain+as.factor(sex_pairb)+mar+preg.condi, data = matched_mean_stratified_nonsmoking)
+summary(lm2n)
 ```
 
 
@@ -276,19 +294,19 @@ matched_mean_stratified_homo<-matched_mean_stratified%>%filter(sex_pairb!=1)
 
 
 ```{r}
-lm1_allF<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_mean_stratified_allF)
+lm1_allF<-lm(wt_mean~mager41+mracerec+fracerec+smoking+wtgain+mar, data = matched_mean_stratified_allF)
 summary(lm1_allF)
 
 
-lm1_FandM<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_mean_stratified_FandM)
+lm1_FandM<-lm(wt_mean~mager41+mracerec+fracerec+smoking+wtgain+mar, data = matched_mean_stratified_FandM)
 summary(lm1_FandM)
 
 
-lm1_allM<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_mean_stratified_allM)
+lm1_allM<-lm(wt_mean~mager41+mracerec+fracerec+smoking+wtgain+mar, data = matched_mean_stratified_allM)
 summary(lm1_allM) #cig_1 is not significant
 
 
-lm1_homo<-lm(wt_mean~mager41+mracerec+fracerec+cig_1+wtgain+mar+preg.condi, data = matched_mean_stratified_homo)
+lm1_homo<-lm(wt_mean~mager41+mracerec+fracerec+smoking+wtgain+mar, data = matched_mean_stratified_homo)
 summary(lm1_homo)
 
 ```
