@@ -350,6 +350,6 @@ summary(mixed.lmer4)
 
 mean birth weight and mortality rate within pair?
 
+## Part 3: PC algorithm --> See pc_algo.Rmd file
 
-# PC algorithm
 
