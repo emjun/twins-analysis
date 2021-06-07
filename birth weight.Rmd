@@ -324,24 +324,28 @@ set.seed(4)
 random.num<-sample(unique(matched_all$number), size=5000, replace = F)
 random.matched_all<-matched_all%>%filter(number%in% random.num)
 library(lme4)
-mixed.lmer1 <- glmer(death ~ dbwt + mager41+mracerec+fracerec+cig_1+wtgain+sex+apgar5 +(1|number), data = random.matched_all, family = "binomial")
-summary(mixed.lmer1)
 
 random.matched_all<-random.matched_all%>%mutate(low.bw=ifelse(dbwt<2500,1,0), smoking=ifelse(cig_1>0,1,0))
 
-mixed.lmer2 <- glmer(death ~ low.bw +smoking+ low.bw*smoking + mager41+mracerec+sex+(1|number), data = random.matched_all, family = "binomial")
-summary(mixed.lmer2)
+# mixed.lmer1 <- glmer(death ~ dbwt + mager41+mracerec+fracerec+smoking+wtgain+sex+apgar5 +(1|number), data = random.matched_all, family = "binomial")
+# summary(mixed.lmer1)
+# 
+# mixed.lmer1a <- glmer(death ~ dbwt + mager41+mracerec+fracerec+cig_1+wtgain+sex+apgar5 +(1|number), data = random.matched_all, family = "binomial")
+# summary(mixed.lmer1a)
+# 
+# mixed.lmer2 <- glmer(death ~ low.bw +smoking+ low.bw*smoking + mager41+mracerec+sex+(1|number), data = random.matched_all, family = "binomial")
+# summary(mixed.lmer2)
+# 
+# mixed.lmer3 <- glmer(death ~ as.factor(low.bw) +as.factor(smoking)+ as.factor(low.bw) *as.factor(smoking) + mager41+mracerec+fracerec+wtgain+sex+apgar5 + preg.condi +(1|number), data = random.matched_all, family = "binomial")
+# summary(mixed.lmer3)
 
-mixed.lmer3 <- glmer(death ~ as.factor(low.bw) +as.factor(smoking)+ as.factor(low.bw) *as.factor(smoking) + mager41+mracerec+fracerec+wtgain+sex+apgar5 + preg.condi +(1|number), data = random.matched_all, family = "binomial")
-summary(mixed.lmer3)
-
-mixed.lmer4 <- glmer(death ~ as.factor(low.bw) +as.factor(smoking)+ as.factor(low.bw) *as.factor(smoking) + mager41+mracerec+sex+apgar5 +(1|number), data = random.matched_all, family = "binomial")
+mixed.lmer4 <- glmer(death ~ as.factor(low.bw) +as.factor(smoking) + mager41+mracerec+sex+apgar5 +(1|number), data = random.matched_all, family = "binomial")
 summary(mixed.lmer4)
 
-mean(random.matched_all$low.bw)
-
-matched_all<-matched_all%>%mutate(low.bw=ifelse(dbwt<2500,1,0), smoking=ifelse(cig_1>0,1,0))
-mean(matched_all$low.bw)
+# mean(random.matched_all$low.bw)
+# 
+# matched_all<-matched_all%>%mutate(low.bw=ifelse(dbwt<2500,1,0), smoking=ifelse(cig_1>0,1,0))
+# mean(matched_all$low.bw)
 ```
 
 mean birth weight and mortality rate within pair?
