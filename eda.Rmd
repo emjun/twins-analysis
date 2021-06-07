@@ -163,13 +163,124 @@ dev.off()
 
 ```
 
+RQ4: Create a df for each twin pair showing mother's info + categorical encoding for chromosomal abnormalities (both, one) for each chromosomal abnormality
+```{r}
+#ca_anen: Anencephaly - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_menin: Meningomyelocele / Spina Bifida - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_heart: Cyonotic Congenital Heart Disease - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_hernia: Congenital Diaphragmatic Hernia - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_ompha: Omphalocele - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_gastro: Gastrochisis - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_limb: Limb Reduction Defect - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_cleftlp: Cleft Lip w/ or w/o Cleft Palate - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_cleft: Cleft Palate alone - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_downs: Downs Syndrome - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+#ca_chrom: Suspected Chromosomal Disorder - C: Confirmed; P: Pending; N: No; U: Unknown
+#ca_hypos: Hypospadias - Y: Yes, Complication reported; N: No Complication reported; U: Unknown or not stated
+
+# Visualize the frequency of the above congential abnormalities across all twins, NOT GROUPED BY TWIN PAIRS
+plot_list = list()
+plot_list[[1]] <- ggplot(twins_only, aes(ca_anen)) +
+                  geom_histogram(stat="count")
+
+plot_list[[2]] <- ggplot(twins_only, aes(ca_menin)) +
+                  geom_histogram(stat="count")
+
+plot_list[[3]] <- ggplot(twins_only, aes(ca_heart)) +
+                  geom_histogram(stat="count")
+
+plot_list[[4]] <- ggplot(twins_only, aes(ca_hernia)) +
+                  geom_histogram(stat="count")
+
+plot_list[[5]] <- ggplot(twins_only, aes(ca_ompha)) +
+                  geom_histogram(stat="count")
+
+plot_list[[6]] <- ggplot(twins_only, aes(ca_gastro)) +
+                  geom_histogram(stat="count")
+
+plot_list[[7]] <- ggplot(twins_only, aes(ca_limb)) +
+                  geom_histogram(stat="count")
+
+plot_list[[8]] <- ggplot(twins_only, aes(ca_cleftlp)) +
+                  geom_histogram(stat="count")
+
+plot_list[[9]] <- ggplot(twins_only, aes(ca_cleft)) +
+                  geom_histogram(stat="count")
+
+plot_list[[10]] <- ggplot(twins_only, aes(ca_downs)) +
+                  geom_histogram(stat="count")
+
+plot_list[[11]] <- ggplot(twins_only, aes(ca_hypos)) +
+                  geom_histogram(stat="count")
+
+# Save plots in one PDF
+pdf("congenital_abnormalities.pdf")
+for (i in 1:11) {
+    print(plot_list[[i]])
+}
+dev.off()
+
+# Create a table of instances with congenital abnormalities among twins, counting each baby independently
+ca_table <-summarise(twins_only, 
+          ca_anen=count(filter(twins_only, ca_anen=='Y')), 
+          ca_menin=count(filter(twins_only, ca_menin=='Y')),
+          ca_heart=count(filter(twins_only, ca_heart=='Y')),
+          ca_hernia=count(filter(twins_only, ca_hernia=='Y')),
+          ca_ompha=count(filter(twins_only, ca_ompha=='Y')),
+          ca_gastro=count(filter(twins_only, ca_gastro=='Y')),
+          ca_limb=count(filter(twins_only, ca_limb=='Y')),
+          ca_cleftlp=count(filter(twins_only, ca_cleftlp=='Y')),
+          ca_cleft=count(filter(twins_only, ca_cleft=='Y')),
+          ca_downs=count(filter(twins_only, ca_downs=='Y')),
+          ca_chrom=count(filter(twins_only, ca_chrom=='Y')),
+          ca_hypos=count(filter(twins_only, ca_hypos=='Y')),
+          )
+
+ca_table_df<-as.data.frame(t(ca_table))
+colnames(ca_table_df)[1]<- "count" # Rename column 
+
+
+# Create a table of twin pairs with congenital abnormalities among twins, counts correspond to a twin pair
+
+```
+
 What is the sex makeup of twins? 
 ```{r}
 # Process data for pair twins
-# Get unique twin pair numbers
-unique_pairs = unique(twins_only['number'])
-number_twin_sex_df = data.frame(number=integer(0), pair_sex=character(0))
-assertthat::are_equal(nrow(unique_pairs), nrow(twins_only)/2.)
+
+# Twin pair sex
+twins_sex<-twins_only%>%group_by(number)%>%summarise(sex_pair=paste0(sex[1],sex[2]),
+sex_pairb=ifelse(sex_pair=="FF", 0, ifelse(sex_pair %in% c("MF","FM"),1,2)),)
+```
+
+How many babies (not twin pairs) have congenital abnormalities?
+```{r}
+ca_summary<-twins_only%>%summarise(ca=paste0(ca_anen, ca_menin, ca_heart, ca_hernia, ca_ompha, ca_gastro, ca_limb, ca_cleftlp, ca_cleft, ca_downs, ca_chrom, ca_hypos),)
+ca_summary$num_unique_ca <- str_count(ca_summary$ca, "Y")
+assertthat::are_equal(nrow(ca_summary), nrow(twins_only))
+
+# Summary table
+table(ca_summary$num_unique_ca)
+```
+
+How are congential abnormalities distributed among twins?
+```{r}
+# Question: Should I only look at chromosomal abnormalities among same sex twins (more likely to be identical)
+# abnormalities
+twins_ca_anen<-twins_only%>%group_by(number)%>%summarise(ca_anen_pair=paste0(ca_anen[1],ca_anen[2]),
+ca_anen_pairb=ifelse(ca_anen_pair %in% c("YN","NY"),1,ifelse(ca_anen_pair == "YY", 2, 0)),)
+
+twins_ca_menin<-twins_only%>%group_by(number)%>%summarise(ca_menin_pair=paste0(ca_menin[1],ca_menin[2]),
+ca_menin_pairb=ifelse(ca_menin_pair %in% c("YN","NY"),1,ifelse(ca_menin_pair == "YY", 2, 0)),)
+
+twins_ca_heart<-twins_only%>%group_by(number)%>%summarise(ca_heart_pair=paste0(ca_heart[1],ca_heart[2]),
+ca_heart_pairb=ifelse(ca_heart_pair %in% c("YN","NY", "YU", "UY"),1,ifelse(ca_heart_pair == "YY", 2, 0)),)
+table(twins_ca_heart$ca_heart_pairb)
+
+
+# Join the "derived" values with the matched twin dataset
+twins_sex<-twins_only%>%
+  left_join(twins_sex, by="number")
 
 for (pair in unique_pairs) {
   twins = twins_only[twins_only$number %in% pair,]
@@ -233,9 +344,6 @@ ggplot(number_twin_sex_df, aes("pair_sex")) +
 
 RQ2: Mortality rate? - Create  a df for each twin pair showing their mother's info + categorical encoding for mortality (looking at Death column)
 
-RQ4: Create a df for each twin pair showing mother's info + categorical encoding for chromosomal abnormalities (both, one) for each chromosomal abnormality
-
-
 ```{r}
 # Create a new wide dataframe
 twins_only_numbers <- data.frame(number=character(),
@@ -269,12 +377,6 @@ head(twins_only)
 # Add each value 
 ```
 
-
-
-Count and visualize number of twins vs. triplets vs. ...
-```{r}
-
-```
 
 Visualize specific data columns of interest
 Most twins in the dataset live (death == 0)
