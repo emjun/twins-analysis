@@ -113,5 +113,5 @@ summary(lm2_homo)
 
 
 
-## Part 3: PC algorithm
+## Part 3: PC algorithm --> See pc_algo.Rmd file
 
