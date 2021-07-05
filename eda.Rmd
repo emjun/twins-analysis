@@ -88,13 +88,18 @@ plot_list[[3]] <- ggplot(one_twin_only_df, aes(mracerec)) +
 plot_list[[4]] <- ggplot(one_twin_only_df, aes(wtgain)) +
                   geom_histogram(binwidth = 1, stat="count")
 
-plot_list[[5]] <- ggplot(one_twin_only_df, aes(cig_1)) +
+tmp<-filter(one_twin_only_df, cig_1 < 99)
+plot_list[[5]] <- ggplot(tmp, aes(cig_1)) +
+                  geom_histogram(binwidth = 1, stat="count") +
+                  xlim(0, 50) + 
+                  ylim(0,)
+
+tmp<-filter(one_twin_only_df, cig_2 < 99)
+plot_list[[6]] <- ggplot(tmp, aes(cig_2)) +
                   geom_histogram(binwidth = 1, stat="count")
 
-plot_list[[6]] <- ggplot(one_twin_only_df, aes(cig_2)) +
-                  geom_histogram(binwidth = 1, stat="count")
-
-plot_list[[7]] <- ggplot(one_twin_only_df, aes(cig_3)) +
+tmp<-filter(one_twin_only_df, cig_3 < 99)
+plot_list[[7]] <- ggplot(tmp, aes(cig_3)) +
                   geom_histogram(binwidth = 1, stat="count")
 
 plot_list[[8]] <- ggplot(one_twin_only_df, aes(rf_diab)) +
@@ -267,8 +272,9 @@ How are congential abnormalities distributed among twins?
 ```{r}
 # Question: Should I only look at chromosomal abnormalities among same sex twins (more likely to be identical)
 # abnormalities
-twins_ca_anen<-twins_only%>%group_by(number)%>%summarise(ca_anen_pair=paste0(ca_anen[1],ca_anen[2]),
-ca_anen_pairb=ifelse(ca_anen_pair %in% c("YN","NY"),1,ifelse(ca_anen_pair == "YY", 2, 0)),)
+twins_ca_heart<-twins_only%>%group_by(number)%>%summarise(ca_heart_pair=paste0(ca_heart[1],ca_heart[2]),
+ca_heart_pairb=ifelse(ca_heart_pair %in% c("YN","NY", "YU", "UY"),1,ifelse(ca_heart_pair == "YY", 2, 0)),)
+table(twins_ca_heart$ca_heart_pairb)
 
 twins_ca_menin<-twins_only%>%group_by(number)%>%summarise(ca_menin_pair=paste0(ca_menin[1],ca_menin[2]),
 ca_menin_pairb=ifelse(ca_menin_pair %in% c("YN","NY"),1,ifelse(ca_menin_pair == "YY", 2, 0)),)
